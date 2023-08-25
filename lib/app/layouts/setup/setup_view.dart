@@ -1,3 +1,6 @@
+import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_2fa.dart';
+import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_login.dart';
+import 'package:bluebubbles/app/layouts/setup/pages/rustpush/ids_validation.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/setup_checks/battery_optimization.dart';
 import 'package:bluebubbles/app/layouts/setup/dialogs/failed_to_connect_dialog.dart';
@@ -8,6 +11,7 @@ import 'package:bluebubbles/app/layouts/setup/pages/setup_checks/mac_setup_check
 import 'package:bluebubbles/app/layouts/setup/pages/sync/sync_progress.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/welcome/welcome_page.dart';
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +28,9 @@ class SetupViewController extends StatefulController {
   bool saveToDownloads = false;
   String error = "";
   bool obscurePass = true;
+
+  String twoFaUser = "";
+  String twoFaPass = "";
 
   int get pageOfNoReturn => kIsWeb || kIsDesktop ? 3 : 5;
 
@@ -214,14 +221,63 @@ class SetupPages extends StatelessWidget {
           WelcomePage(),
           if (!kIsWeb && !kIsDesktop) RequestContacts(),
           if (!kIsWeb && !kIsDesktop) BatteryOptimizationCheck(),
-          MacSetupCheck(),
-          ServerCredentials(),
-          if (!kIsWeb)
+          if (!usingRustPush)
+            MacSetupCheck(),
+          if (!usingRustPush)
+            ServerCredentials(),
+          if (!kIsWeb && !usingRustPush)
             SyncSettings(),
-          SyncProgress(),
+          if (!usingRustPush)
+            SyncProgress(),
+          if (usingRustPush)
+            AppleIdLogin(),
+          if (usingRustPush)
+            AppleId2FA(),
+          if (usingRustPush)
+            IdsValidation(),
           //ThemeSelector(),
         ],
       ),
+    );
+  }
+}
+
+
+class ErrorText extends CustomStateful<SetupViewController> {
+  ErrorText({required super.parentController});
+
+  @override
+  State<StatefulWidget> createState() => _ErrorTextState();
+}
+
+class _ErrorTextState extends CustomState<ErrorText, String, SetupViewController> {
+  @override
+  void updateWidget(String newVal) {
+    controller.error = newVal;
+    super.updateWidget(newVal);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (controller.error.isNotEmpty)
+          Container(
+            width: context.width * 2 / 3,
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(controller.error,
+                  style: context.theme.textTheme.bodyLarge!
+                      .apply(
+                        fontSizeDelta: 1.5,
+                        color: context.theme.colorScheme.error,
+                      )
+                      .copyWith(height: 2)),
+            ),
+          ),
+        if (controller.error.isNotEmpty) const SizedBox(height: 20),
+      ],
     );
   }
 }

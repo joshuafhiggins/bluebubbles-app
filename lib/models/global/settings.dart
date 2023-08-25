@@ -142,6 +142,9 @@ class Settings {
   // Windows settings
   final RxBool useWindowsAccent = RxBool(false);
 
+  // RustPush settings
+  final RxString rustPushState = "".obs;
+
   Future<DisplayMode> getDisplayMode() async {
     List<DisplayMode> modes = await FlutterDisplayMode.supported;
     return modes.firstWhereOrNull((element) => element.refreshRate.round() == refreshRate.value) ?? DisplayMode.auto;
@@ -283,6 +286,7 @@ class Settings {
       'windowEffectCustomOpacityLight': windowEffectCustomOpacityLight.value,
       'windowEffectCustomOpacityDark': windowEffectCustomOpacityDark.value,
       'useWindowsAccent': useWindowsAccent.value,
+      'rustPushState': rustPushState.value,
     };
     if (includeAll) {
       map.addAll({
@@ -406,6 +410,7 @@ class Settings {
     ss.settings.windowEffectCustomOpacityLight.value = map['windowEffectCustomOpacityLight'] ?? 0.5;
     ss.settings.windowEffectCustomOpacityDark.value = map['windowEffectCustomOpacityDark'] ?? 0.5;
     ss.settings.useWindowsAccent.value = map['useWindowsAccent'] ?? false;
+    ss.settings.rustPushState.value = map['rustPushState'] ?? "";
     ss.settings.save();
   }
 
@@ -526,6 +531,7 @@ class Settings {
     s.windowEffectCustomOpacityLight.value = map['windowEffectCustomOpacityLight'] ?? 0.5;
     s.windowEffectCustomOpacityDark.value = map['windowEffectCustomOpacityDark'] ?? 0.5;
     s.useWindowsAccent.value = map['useWindowsAccent'] ?? false;
+    s.rustPushState.value = map['rustPushState'] ?? "";
     return s;
   }
 }

@@ -29,6 +29,9 @@ class SyncService extends GetxService {
   Future<void> startFullSync() async {
     // Set the last sync date (for incremental, even though this isn't incremental)
     // We won't try an incremental sync until the last (full) sync date is set
+    if (usingRustPush) {
+      return; // rustpush does not support syncing yet
+    }
     ss.settings.lastIncrementalSync.value = DateTime.now().millisecondsSinceEpoch;
     await ss.saveSettings();
 
@@ -41,6 +44,9 @@ class SyncService extends GetxService {
   }
 
   Future<void> startIncrementalSync() async {
+    if (usingRustPush) {
+      return; // rustpush does not support syncing yet
+    }
     isIncrementalSyncing.value = true;
 
     final contacts = <Contact>[];
