@@ -48,6 +48,7 @@ import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
+const usingRustPush = true;
 const databaseVersion = 4;
 late final Store store;
 late final Box<Attachment> attachmentBox;
