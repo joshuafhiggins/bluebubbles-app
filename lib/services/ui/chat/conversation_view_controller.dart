@@ -54,6 +54,7 @@ class ConversationViewController extends StatefulController with GetSingleTicker
   final RxBool recipientNotifsSilenced = false.obs;
   bool showingOverlays = false;
   bool _subjectWasLastFocused = false; // If this is false, then message field was last focused (default)
+  StreamSubscription<dynamic>? cancelTypingIndicator;
 
   FocusNode get lastFocusedNode => _subjectWasLastFocused ? subjectFocusNode : focusNode;
   TextEditingController get lastFocusedTextController => _subjectWasLastFocused ? subjectTextController : textController;

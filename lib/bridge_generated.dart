@@ -42,6 +42,62 @@ class NativeLibImpl implements NativeLib {
         argNames: [],
       );
 
+  Future<String> formatE164(
+      {required String number, required String country, dynamic hint}) {
+    var arg0 = _platform.api2wire_String(number);
+    var arg1 = _platform.api2wire_String(country);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_format_e164(port_, arg0, arg1),
+      parseSuccessData: _wire2api_String,
+      constMeta: kFormatE164ConstMeta,
+      argValues: [number, country],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kFormatE164ConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "format_e164",
+        argNames: ["number", "country"],
+      );
+
+  Future<DartRecievedMessage?> recvWait(
+      {required PushState state, dynamic hint}) {
+    var arg0 = _platform.api2wire_PushState(state);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_recv_wait(port_, arg0),
+      parseSuccessData: _wire2api_opt_box_autoadd_dart_recieved_message,
+      constMeta: kRecvWaitConstMeta,
+      argValues: [state],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kRecvWaitConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "recv_wait",
+        argNames: ["state"],
+      );
+
+  Future<void> send(
+      {required PushState state, required DartIMessage msg, dynamic hint}) {
+    var arg0 = _platform.api2wire_PushState(state);
+    var arg1 = _platform.api2wire_box_autoadd_dart_i_message(msg);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_send(port_, arg0, arg1),
+      parseSuccessData: _wire2api_unit,
+      constMeta: kSendConstMeta,
+      argValues: [state, msg],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kSendConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "send",
+        argNames: ["state", "msg"],
+      );
+
   Future<List<String>> getHandles({required PushState state, dynamic hint}) {
     var arg0 = _platform.api2wire_PushState(state);
     return _platform.executeNormal(FlutterRustBridgeTask(
@@ -57,6 +113,30 @@ class NativeLibImpl implements NativeLib {
       const FlutterRustBridgeTaskConstMeta(
         debugName: "get_handles",
         argNames: ["state"],
+      );
+
+  Future<DartIMessage> newMsg(
+      {required PushState state,
+      required DartConversationData conversation,
+      required DartMessage message,
+      dynamic hint}) {
+    var arg0 = _platform.api2wire_PushState(state);
+    var arg1 =
+        _platform.api2wire_box_autoadd_dart_conversation_data(conversation);
+    var arg2 = _platform.api2wire_box_autoadd_dart_message(message);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_new_msg(port_, arg0, arg1, arg2),
+      parseSuccessData: _wire2api_dart_i_message,
+      constMeta: kNewMsgConstMeta,
+      argValues: [state, conversation, message],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kNewMsgConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "new_msg",
+        argNames: ["state", "conversation", "message"],
       );
 
   Future<List<String>> validateTargets(
@@ -96,11 +176,11 @@ class NativeLibImpl implements NativeLib {
         argNames: ["state"],
       );
 
-  Future<int> getPhase({required PushState state, dynamic hint}) {
+  Future<RegistrationPhase> getPhase({required PushState state, dynamic hint}) {
     var arg0 = _platform.api2wire_PushState(state);
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_get_phase(port_, arg0),
-      parseSuccessData: _wire2api_u64,
+      parseSuccessData: _wire2api_registration_phase,
       constMeta: kGetPhaseConstMeta,
       argValues: [state],
       hint: hint,
@@ -233,6 +313,236 @@ class NativeLibImpl implements NativeLib {
     return (raw as List<dynamic>).cast<String>();
   }
 
+  bool _wire2api_bool(dynamic raw) {
+    return raw as bool;
+  }
+
+  DartBalloonBody _wire2api_box_autoadd_dart_balloon_body(dynamic raw) {
+    return _wire2api_dart_balloon_body(raw);
+  }
+
+  DartChangeParticipantMessage
+      _wire2api_box_autoadd_dart_change_participant_message(dynamic raw) {
+    return _wire2api_dart_change_participant_message(raw);
+  }
+
+  DartConversationData _wire2api_box_autoadd_dart_conversation_data(
+      dynamic raw) {
+    return _wire2api_dart_conversation_data(raw);
+  }
+
+  DartEditMessage _wire2api_box_autoadd_dart_edit_message(dynamic raw) {
+    return _wire2api_dart_edit_message(raw);
+  }
+
+  DartIMessage _wire2api_box_autoadd_dart_i_message(dynamic raw) {
+    return _wire2api_dart_i_message(raw);
+  }
+
+  DartNormalMessage _wire2api_box_autoadd_dart_normal_message(dynamic raw) {
+    return _wire2api_dart_normal_message(raw);
+  }
+
+  DartReactMessage _wire2api_box_autoadd_dart_react_message(dynamic raw) {
+    return _wire2api_dart_react_message(raw);
+  }
+
+  DartRecievedMessage _wire2api_box_autoadd_dart_recieved_message(dynamic raw) {
+    return _wire2api_dart_recieved_message(raw);
+  }
+
+  DartRenameMessage _wire2api_box_autoadd_dart_rename_message(dynamic raw) {
+    return _wire2api_dart_rename_message(raw);
+  }
+
+  DartUnsendMessage _wire2api_box_autoadd_dart_unsend_message(dynamic raw) {
+    return _wire2api_dart_unsend_message(raw);
+  }
+
+  DartBalloonBody _wire2api_dart_balloon_body(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return DartBalloonBody(
+      bid: _wire2api_String(arr[0]),
+      data: _wire2api_uint_8_list(arr[1]),
+    );
+  }
+
+  DartChangeParticipantMessage _wire2api_dart_change_participant_message(
+      dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return DartChangeParticipantMessage(
+      newParticipants: _wire2api_StringList(arr[0]),
+    );
+  }
+
+  DartConversationData _wire2api_dart_conversation_data(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return DartConversationData(
+      participants: _wire2api_StringList(arr[0]),
+      cvName: _wire2api_opt_String(arr[1]),
+      senderGuid: _wire2api_opt_String(arr[2]),
+    );
+  }
+
+  DartEditMessage _wire2api_dart_edit_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return DartEditMessage(
+      tuuid: _wire2api_String(arr[0]),
+      editPart: _wire2api_u64(arr[1]),
+      newData: _wire2api_String(arr[2]),
+    );
+  }
+
+  DartIMessage _wire2api_dart_i_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return DartIMessage(
+      id: _wire2api_String(arr[0]),
+      sender: _wire2api_opt_String(arr[1]),
+      afterGuid: _wire2api_opt_String(arr[2]),
+      conversation: _wire2api_opt_box_autoadd_dart_conversation_data(arr[3]),
+      message: _wire2api_dart_message(arr[4]),
+      sentTimestamp: _wire2api_u64(arr[5]),
+    );
+  }
+
+  DartMessage _wire2api_dart_message(dynamic raw) {
+    switch (raw[0]) {
+      case 0:
+        return DartMessage_Message(
+          _wire2api_box_autoadd_dart_normal_message(raw[1]),
+        );
+      case 1:
+        return DartMessage_RenameMessage(
+          _wire2api_box_autoadd_dart_rename_message(raw[1]),
+        );
+      case 2:
+        return DartMessage_ChangeParticipants(
+          _wire2api_box_autoadd_dart_change_participant_message(raw[1]),
+        );
+      case 3:
+        return DartMessage_React(
+          _wire2api_box_autoadd_dart_react_message(raw[1]),
+        );
+      case 4:
+        return DartMessage_Delivered();
+      case 5:
+        return DartMessage_Read();
+      case 6:
+        return DartMessage_Typing();
+      case 7:
+        return DartMessage_Unsend(
+          _wire2api_box_autoadd_dart_unsend_message(raw[1]),
+        );
+      case 8:
+        return DartMessage_Edit(
+          _wire2api_box_autoadd_dart_edit_message(raw[1]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  DartNormalMessage _wire2api_dart_normal_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return DartNormalMessage(
+      text: _wire2api_String(arr[0]),
+      xml: _wire2api_opt_String(arr[1]),
+      body: _wire2api_opt_box_autoadd_dart_balloon_body(arr[2]),
+      effect: _wire2api_opt_String(arr[3]),
+      replyGuid: _wire2api_opt_String(arr[4]),
+      replyPart: _wire2api_opt_String(arr[5]),
+    );
+  }
+
+  DartReactMessage _wire2api_dart_react_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return DartReactMessage(
+      toUuid: _wire2api_String(arr[0]),
+      toPart: _wire2api_u64(arr[1]),
+      enable: _wire2api_bool(arr[2]),
+      reaction: _wire2api_dart_reaction(arr[3]),
+      toText: _wire2api_String(arr[4]),
+    );
+  }
+
+  DartReaction _wire2api_dart_reaction(dynamic raw) {
+    return DartReaction.values[raw as int];
+  }
+
+  DartRecievedMessage _wire2api_dart_recieved_message(dynamic raw) {
+    switch (raw[0]) {
+      case 0:
+        return DartRecievedMessage_Message(
+          msg: _wire2api_box_autoadd_dart_i_message(raw[1]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  DartRenameMessage _wire2api_dart_rename_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return DartRenameMessage(
+      newName: _wire2api_String(arr[0]),
+    );
+  }
+
+  DartUnsendMessage _wire2api_dart_unsend_message(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return DartUnsendMessage(
+      tuuid: _wire2api_String(arr[0]),
+      editPart: _wire2api_u64(arr[1]),
+    );
+  }
+
+  int _wire2api_i32(dynamic raw) {
+    return raw as int;
+  }
+
+  String? _wire2api_opt_String(dynamic raw) {
+    return raw == null ? null : _wire2api_String(raw);
+  }
+
+  DartBalloonBody? _wire2api_opt_box_autoadd_dart_balloon_body(dynamic raw) {
+    return raw == null ? null : _wire2api_box_autoadd_dart_balloon_body(raw);
+  }
+
+  DartConversationData? _wire2api_opt_box_autoadd_dart_conversation_data(
+      dynamic raw) {
+    return raw == null
+        ? null
+        : _wire2api_box_autoadd_dart_conversation_data(raw);
+  }
+
+  DartRecievedMessage? _wire2api_opt_box_autoadd_dart_recieved_message(
+      dynamic raw) {
+    return raw == null
+        ? null
+        : _wire2api_box_autoadd_dart_recieved_message(raw);
+  }
+
+  RegistrationPhase _wire2api_registration_phase(dynamic raw) {
+    return RegistrationPhase.values[raw as int];
+  }
+
   int _wire2api_u64(dynamic raw) {
     return castInt(raw);
   }
@@ -251,6 +561,21 @@ class NativeLibImpl implements NativeLib {
 }
 
 // Section: api2wire
+
+@protected
+bool api2wire_bool(bool raw) {
+  return raw;
+}
+
+@protected
+int api2wire_dart_reaction(DartReaction raw) {
+  return api2wire_i32(raw.index);
+}
+
+@protected
+int api2wire_i32(int raw) {
+  return raw;
+}
 
 @protected
 int api2wire_u8(int raw) {
@@ -286,6 +611,114 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_DartBalloonBody> api2wire_box_autoadd_dart_balloon_body(
+      DartBalloonBody raw) {
+    final ptr = inner.new_box_autoadd_dart_balloon_body_0();
+    _api_fill_to_wire_dart_balloon_body(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartChangeParticipantMessage>
+      api2wire_box_autoadd_dart_change_participant_message(
+          DartChangeParticipantMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_change_participant_message_0();
+    _api_fill_to_wire_dart_change_participant_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartConversationData>
+      api2wire_box_autoadd_dart_conversation_data(DartConversationData raw) {
+    final ptr = inner.new_box_autoadd_dart_conversation_data_0();
+    _api_fill_to_wire_dart_conversation_data(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartEditMessage> api2wire_box_autoadd_dart_edit_message(
+      DartEditMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_edit_message_0();
+    _api_fill_to_wire_dart_edit_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartIMessage> api2wire_box_autoadd_dart_i_message(
+      DartIMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_i_message_0();
+    _api_fill_to_wire_dart_i_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartMessage> api2wire_box_autoadd_dart_message(
+      DartMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_message_0();
+    _api_fill_to_wire_dart_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartNormalMessage> api2wire_box_autoadd_dart_normal_message(
+      DartNormalMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_normal_message_0();
+    _api_fill_to_wire_dart_normal_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartReactMessage> api2wire_box_autoadd_dart_react_message(
+      DartReactMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_react_message_0();
+    _api_fill_to_wire_dart_react_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartRenameMessage> api2wire_box_autoadd_dart_rename_message(
+      DartRenameMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_rename_message_0();
+    _api_fill_to_wire_dart_rename_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_DartUnsendMessage> api2wire_box_autoadd_dart_unsend_message(
+      DartUnsendMessage raw) {
+    final ptr = inner.new_box_autoadd_dart_unsend_message_0();
+    _api_fill_to_wire_dart_unsend_message(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_uint_8_list> api2wire_opt_String(String? raw) {
+    return raw == null ? ffi.nullptr : api2wire_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_DartBalloonBody> api2wire_opt_box_autoadd_dart_balloon_body(
+      DartBalloonBody? raw) {
+    return raw == null
+        ? ffi.nullptr
+        : api2wire_box_autoadd_dart_balloon_body(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_DartConversationData>
+      api2wire_opt_box_autoadd_dart_conversation_data(
+          DartConversationData? raw) {
+    return raw == null
+        ? ffi.nullptr
+        : api2wire_box_autoadd_dart_conversation_data(raw);
+  }
+
+  @protected
+  int api2wire_u64(int raw) {
+    return raw;
+  }
+
+  @protected
   ffi.Pointer<wire_uint_8_list> api2wire_uint_8_list(Uint8List raw) {
     final ans = inner.new_uint_8_list_0(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
@@ -300,6 +733,197 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
 
   void _api_fill_to_wire_PushState(PushState apiObj, wire_PushState wireObj) {
     wireObj.ptr = apiObj.shareOrMove();
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_balloon_body(
+      DartBalloonBody apiObj, ffi.Pointer<wire_DartBalloonBody> wireObj) {
+    _api_fill_to_wire_dart_balloon_body(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_change_participant_message(
+      DartChangeParticipantMessage apiObj,
+      ffi.Pointer<wire_DartChangeParticipantMessage> wireObj) {
+    _api_fill_to_wire_dart_change_participant_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_conversation_data(
+      DartConversationData apiObj,
+      ffi.Pointer<wire_DartConversationData> wireObj) {
+    _api_fill_to_wire_dart_conversation_data(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_edit_message(
+      DartEditMessage apiObj, ffi.Pointer<wire_DartEditMessage> wireObj) {
+    _api_fill_to_wire_dart_edit_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_i_message(
+      DartIMessage apiObj, ffi.Pointer<wire_DartIMessage> wireObj) {
+    _api_fill_to_wire_dart_i_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_message(
+      DartMessage apiObj, ffi.Pointer<wire_DartMessage> wireObj) {
+    _api_fill_to_wire_dart_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_normal_message(
+      DartNormalMessage apiObj, ffi.Pointer<wire_DartNormalMessage> wireObj) {
+    _api_fill_to_wire_dart_normal_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_react_message(
+      DartReactMessage apiObj, ffi.Pointer<wire_DartReactMessage> wireObj) {
+    _api_fill_to_wire_dart_react_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_rename_message(
+      DartRenameMessage apiObj, ffi.Pointer<wire_DartRenameMessage> wireObj) {
+    _api_fill_to_wire_dart_rename_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_dart_unsend_message(
+      DartUnsendMessage apiObj, ffi.Pointer<wire_DartUnsendMessage> wireObj) {
+    _api_fill_to_wire_dart_unsend_message(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_dart_balloon_body(
+      DartBalloonBody apiObj, wire_DartBalloonBody wireObj) {
+    wireObj.bid = api2wire_String(apiObj.bid);
+    wireObj.data = api2wire_uint_8_list(apiObj.data);
+  }
+
+  void _api_fill_to_wire_dart_change_participant_message(
+      DartChangeParticipantMessage apiObj,
+      wire_DartChangeParticipantMessage wireObj) {
+    wireObj.new_participants = api2wire_StringList(apiObj.newParticipants);
+  }
+
+  void _api_fill_to_wire_dart_conversation_data(
+      DartConversationData apiObj, wire_DartConversationData wireObj) {
+    wireObj.participants = api2wire_StringList(apiObj.participants);
+    wireObj.cv_name = api2wire_opt_String(apiObj.cvName);
+    wireObj.sender_guid = api2wire_opt_String(apiObj.senderGuid);
+  }
+
+  void _api_fill_to_wire_dart_edit_message(
+      DartEditMessage apiObj, wire_DartEditMessage wireObj) {
+    wireObj.tuuid = api2wire_String(apiObj.tuuid);
+    wireObj.edit_part = api2wire_u64(apiObj.editPart);
+    wireObj.new_data = api2wire_String(apiObj.newData);
+  }
+
+  void _api_fill_to_wire_dart_i_message(
+      DartIMessage apiObj, wire_DartIMessage wireObj) {
+    wireObj.id = api2wire_String(apiObj.id);
+    wireObj.sender = api2wire_opt_String(apiObj.sender);
+    wireObj.after_guid = api2wire_opt_String(apiObj.afterGuid);
+    wireObj.conversation =
+        api2wire_opt_box_autoadd_dart_conversation_data(apiObj.conversation);
+    _api_fill_to_wire_dart_message(apiObj.message, wireObj.message);
+    wireObj.sent_timestamp = api2wire_u64(apiObj.sentTimestamp);
+  }
+
+  void _api_fill_to_wire_dart_message(
+      DartMessage apiObj, wire_DartMessage wireObj) {
+    if (apiObj is DartMessage_Message) {
+      var pre_field0 = api2wire_box_autoadd_dart_normal_message(apiObj.field0);
+      wireObj.tag = 0;
+      wireObj.kind = inner.inflate_DartMessage_Message();
+      wireObj.kind.ref.Message.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_RenameMessage) {
+      var pre_field0 = api2wire_box_autoadd_dart_rename_message(apiObj.field0);
+      wireObj.tag = 1;
+      wireObj.kind = inner.inflate_DartMessage_RenameMessage();
+      wireObj.kind.ref.RenameMessage.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_ChangeParticipants) {
+      var pre_field0 =
+          api2wire_box_autoadd_dart_change_participant_message(apiObj.field0);
+      wireObj.tag = 2;
+      wireObj.kind = inner.inflate_DartMessage_ChangeParticipants();
+      wireObj.kind.ref.ChangeParticipants.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_React) {
+      var pre_field0 = api2wire_box_autoadd_dart_react_message(apiObj.field0);
+      wireObj.tag = 3;
+      wireObj.kind = inner.inflate_DartMessage_React();
+      wireObj.kind.ref.React.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_Delivered) {
+      wireObj.tag = 4;
+      return;
+    }
+    if (apiObj is DartMessage_Read) {
+      wireObj.tag = 5;
+      return;
+    }
+    if (apiObj is DartMessage_Typing) {
+      wireObj.tag = 6;
+      return;
+    }
+    if (apiObj is DartMessage_Unsend) {
+      var pre_field0 = api2wire_box_autoadd_dart_unsend_message(apiObj.field0);
+      wireObj.tag = 7;
+      wireObj.kind = inner.inflate_DartMessage_Unsend();
+      wireObj.kind.ref.Unsend.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_Edit) {
+      var pre_field0 = api2wire_box_autoadd_dart_edit_message(apiObj.field0);
+      wireObj.tag = 8;
+      wireObj.kind = inner.inflate_DartMessage_Edit();
+      wireObj.kind.ref.Edit.ref.field0 = pre_field0;
+      return;
+    }
+  }
+
+  void _api_fill_to_wire_dart_normal_message(
+      DartNormalMessage apiObj, wire_DartNormalMessage wireObj) {
+    wireObj.text = api2wire_String(apiObj.text);
+    wireObj.xml = api2wire_opt_String(apiObj.xml);
+    wireObj.body = api2wire_opt_box_autoadd_dart_balloon_body(apiObj.body);
+    wireObj.effect = api2wire_opt_String(apiObj.effect);
+    wireObj.reply_guid = api2wire_opt_String(apiObj.replyGuid);
+    wireObj.reply_part = api2wire_opt_String(apiObj.replyPart);
+  }
+
+  void _api_fill_to_wire_dart_react_message(
+      DartReactMessage apiObj, wire_DartReactMessage wireObj) {
+    wireObj.to_uuid = api2wire_String(apiObj.toUuid);
+    wireObj.to_part = api2wire_u64(apiObj.toPart);
+    wireObj.enable = api2wire_bool(apiObj.enable);
+    wireObj.reaction = api2wire_dart_reaction(apiObj.reaction);
+    wireObj.to_text = api2wire_String(apiObj.toText);
+  }
+
+  void _api_fill_to_wire_dart_rename_message(
+      DartRenameMessage apiObj, wire_DartRenameMessage wireObj) {
+    wireObj.new_name = api2wire_String(apiObj.newName);
+  }
+
+  void _api_fill_to_wire_dart_unsend_message(
+      DartUnsendMessage apiObj, wire_DartUnsendMessage wireObj) {
+    wireObj.tuuid = api2wire_String(apiObj.tuuid);
+    wireObj.edit_part = api2wire_u64(apiObj.editPart);
+  }
+
+  void _api_fill_to_wire_opt_box_autoadd_dart_balloon_body(
+      DartBalloonBody? apiObj, ffi.Pointer<wire_DartBalloonBody> wireObj) {
+    if (apiObj != null)
+      _api_fill_to_wire_box_autoadd_dart_balloon_body(apiObj, wireObj);
+  }
+
+  void _api_fill_to_wire_opt_box_autoadd_dart_conversation_data(
+      DartConversationData? apiObj,
+      ffi.Pointer<wire_DartConversationData> wireObj) {
+    if (apiObj != null)
+      _api_fill_to_wire_box_autoadd_dart_conversation_data(apiObj, wireObj);
   }
 }
 
@@ -413,6 +1037,61 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
   late final _wire_newPushState =
       _wire_newPushStatePtr.asFunction<void Function(int)>();
 
+  void wire_format_e164(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> number,
+    ffi.Pointer<wire_uint_8_list> country,
+  ) {
+    return _wire_format_e164(
+      port_,
+      number,
+      country,
+    );
+  }
+
+  late final _wire_format_e164Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_format_e164');
+  late final _wire_format_e164 = _wire_format_e164Ptr.asFunction<
+      void Function(
+          int, ffi.Pointer<wire_uint_8_list>, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_recv_wait(
+    int port_,
+    wire_PushState state,
+  ) {
+    return _wire_recv_wait(
+      port_,
+      state,
+    );
+  }
+
+  late final _wire_recv_waitPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, wire_PushState)>>(
+          'wire_recv_wait');
+  late final _wire_recv_wait =
+      _wire_recv_waitPtr.asFunction<void Function(int, wire_PushState)>();
+
+  void wire_send(
+    int port_,
+    wire_PushState state,
+    ffi.Pointer<wire_DartIMessage> msg,
+  ) {
+    return _wire_send(
+      port_,
+      state,
+      msg,
+    );
+  }
+
+  late final _wire_sendPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, wire_PushState,
+              ffi.Pointer<wire_DartIMessage>)>>('wire_send');
+  late final _wire_send = _wire_sendPtr.asFunction<
+      void Function(int, wire_PushState, ffi.Pointer<wire_DartIMessage>)>();
+
   void wire_get_handles(
     int port_,
     wire_PushState state,
@@ -428,6 +1107,31 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
           'wire_get_handles');
   late final _wire_get_handles =
       _wire_get_handlesPtr.asFunction<void Function(int, wire_PushState)>();
+
+  void wire_new_msg(
+    int port_,
+    wire_PushState state,
+    ffi.Pointer<wire_DartConversationData> conversation,
+    ffi.Pointer<wire_DartMessage> message,
+  ) {
+    return _wire_new_msg(
+      port_,
+      state,
+      conversation,
+      message,
+    );
+  }
+
+  late final _wire_new_msgPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              wire_PushState,
+              ffi.Pointer<wire_DartConversationData>,
+              ffi.Pointer<wire_DartMessage>)>>('wire_new_msg');
+  late final _wire_new_msg = _wire_new_msgPtr.asFunction<
+      void Function(int, wire_PushState, ffi.Pointer<wire_DartConversationData>,
+          ffi.Pointer<wire_DartMessage>)>();
 
   void wire_validate_targets(
     int port_,
@@ -598,6 +1302,120 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
   late final _new_StringList_0 = _new_StringList_0Ptr
       .asFunction<ffi.Pointer<wire_StringList> Function(int)>();
 
+  ffi.Pointer<wire_DartBalloonBody> new_box_autoadd_dart_balloon_body_0() {
+    return _new_box_autoadd_dart_balloon_body_0();
+  }
+
+  late final _new_box_autoadd_dart_balloon_body_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_DartBalloonBody> Function()>>(
+          'new_box_autoadd_dart_balloon_body_0');
+  late final _new_box_autoadd_dart_balloon_body_0 =
+      _new_box_autoadd_dart_balloon_body_0Ptr
+          .asFunction<ffi.Pointer<wire_DartBalloonBody> Function()>();
+
+  ffi.Pointer<wire_DartChangeParticipantMessage>
+      new_box_autoadd_dart_change_participant_message_0() {
+    return _new_box_autoadd_dart_change_participant_message_0();
+  }
+
+  late final _new_box_autoadd_dart_change_participant_message_0Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_DartChangeParticipantMessage>
+              Function()>>('new_box_autoadd_dart_change_participant_message_0');
+  late final _new_box_autoadd_dart_change_participant_message_0 =
+      _new_box_autoadd_dart_change_participant_message_0Ptr.asFunction<
+          ffi.Pointer<wire_DartChangeParticipantMessage> Function()>();
+
+  ffi.Pointer<wire_DartConversationData>
+      new_box_autoadd_dart_conversation_data_0() {
+    return _new_box_autoadd_dart_conversation_data_0();
+  }
+
+  late final _new_box_autoadd_dart_conversation_data_0Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_DartConversationData>
+              Function()>>('new_box_autoadd_dart_conversation_data_0');
+  late final _new_box_autoadd_dart_conversation_data_0 =
+      _new_box_autoadd_dart_conversation_data_0Ptr
+          .asFunction<ffi.Pointer<wire_DartConversationData> Function()>();
+
+  ffi.Pointer<wire_DartEditMessage> new_box_autoadd_dart_edit_message_0() {
+    return _new_box_autoadd_dart_edit_message_0();
+  }
+
+  late final _new_box_autoadd_dart_edit_message_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_DartEditMessage> Function()>>(
+          'new_box_autoadd_dart_edit_message_0');
+  late final _new_box_autoadd_dart_edit_message_0 =
+      _new_box_autoadd_dart_edit_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartEditMessage> Function()>();
+
+  ffi.Pointer<wire_DartIMessage> new_box_autoadd_dart_i_message_0() {
+    return _new_box_autoadd_dart_i_message_0();
+  }
+
+  late final _new_box_autoadd_dart_i_message_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_DartIMessage> Function()>>(
+          'new_box_autoadd_dart_i_message_0');
+  late final _new_box_autoadd_dart_i_message_0 =
+      _new_box_autoadd_dart_i_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartIMessage> Function()>();
+
+  ffi.Pointer<wire_DartMessage> new_box_autoadd_dart_message_0() {
+    return _new_box_autoadd_dart_message_0();
+  }
+
+  late final _new_box_autoadd_dart_message_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_DartMessage> Function()>>(
+          'new_box_autoadd_dart_message_0');
+  late final _new_box_autoadd_dart_message_0 =
+      _new_box_autoadd_dart_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartMessage> Function()>();
+
+  ffi.Pointer<wire_DartNormalMessage> new_box_autoadd_dart_normal_message_0() {
+    return _new_box_autoadd_dart_normal_message_0();
+  }
+
+  late final _new_box_autoadd_dart_normal_message_0Ptr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_DartNormalMessage> Function()>>(
+      'new_box_autoadd_dart_normal_message_0');
+  late final _new_box_autoadd_dart_normal_message_0 =
+      _new_box_autoadd_dart_normal_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartNormalMessage> Function()>();
+
+  ffi.Pointer<wire_DartReactMessage> new_box_autoadd_dart_react_message_0() {
+    return _new_box_autoadd_dart_react_message_0();
+  }
+
+  late final _new_box_autoadd_dart_react_message_0Ptr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_DartReactMessage> Function()>>(
+      'new_box_autoadd_dart_react_message_0');
+  late final _new_box_autoadd_dart_react_message_0 =
+      _new_box_autoadd_dart_react_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartReactMessage> Function()>();
+
+  ffi.Pointer<wire_DartRenameMessage> new_box_autoadd_dart_rename_message_0() {
+    return _new_box_autoadd_dart_rename_message_0();
+  }
+
+  late final _new_box_autoadd_dart_rename_message_0Ptr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_DartRenameMessage> Function()>>(
+      'new_box_autoadd_dart_rename_message_0');
+  late final _new_box_autoadd_dart_rename_message_0 =
+      _new_box_autoadd_dart_rename_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartRenameMessage> Function()>();
+
+  ffi.Pointer<wire_DartUnsendMessage> new_box_autoadd_dart_unsend_message_0() {
+    return _new_box_autoadd_dart_unsend_message_0();
+  }
+
+  late final _new_box_autoadd_dart_unsend_message_0Ptr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_DartUnsendMessage> Function()>>(
+      'new_box_autoadd_dart_unsend_message_0');
+  late final _new_box_autoadd_dart_unsend_message_0 =
+      _new_box_autoadd_dart_unsend_message_0Ptr
+          .asFunction<ffi.Pointer<wire_DartUnsendMessage> Function()>();
+
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(
     int len,
   ) {
@@ -642,6 +1460,68 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
   late final _share_opaque_PushState = _share_opaque_PushStatePtr
       .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_Message() {
+    return _inflate_DartMessage_Message();
+  }
+
+  late final _inflate_DartMessage_MessagePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_Message');
+  late final _inflate_DartMessage_Message = _inflate_DartMessage_MessagePtr
+      .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_RenameMessage() {
+    return _inflate_DartMessage_RenameMessage();
+  }
+
+  late final _inflate_DartMessage_RenameMessagePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_RenameMessage');
+  late final _inflate_DartMessage_RenameMessage =
+      _inflate_DartMessage_RenameMessagePtr
+          .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_ChangeParticipants() {
+    return _inflate_DartMessage_ChangeParticipants();
+  }
+
+  late final _inflate_DartMessage_ChangeParticipantsPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_ChangeParticipants');
+  late final _inflate_DartMessage_ChangeParticipants =
+      _inflate_DartMessage_ChangeParticipantsPtr
+          .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_React() {
+    return _inflate_DartMessage_React();
+  }
+
+  late final _inflate_DartMessage_ReactPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_React');
+  late final _inflate_DartMessage_React = _inflate_DartMessage_ReactPtr
+      .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_Unsend() {
+    return _inflate_DartMessage_Unsend();
+  }
+
+  late final _inflate_DartMessage_UnsendPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_Unsend');
+  late final _inflate_DartMessage_Unsend = _inflate_DartMessage_UnsendPtr
+      .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
+  ffi.Pointer<DartMessageKind> inflate_DartMessage_Edit() {
+    return _inflate_DartMessage_Edit();
+  }
+
+  late final _inflate_DartMessage_EditPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<DartMessageKind> Function()>>(
+          'inflate_DartMessage_Edit');
+  late final _inflate_DartMessage_Edit = _inflate_DartMessage_EditPtr
+      .asFunction<ffi.Pointer<DartMessageKind> Function()>();
+
   void free_WireSyncReturn(
     WireSyncReturn ptr,
   ) {
@@ -659,10 +1539,6 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
 
 class _Dart_Handle extends ffi.Opaque {}
 
-class wire_PushState extends ffi.Struct {
-  external ffi.Pointer<ffi.Void> ptr;
-}
-
 class wire_uint_8_list extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
 
@@ -670,11 +1546,154 @@ class wire_uint_8_list extends ffi.Struct {
   external int len;
 }
 
+class wire_PushState extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> ptr;
+}
+
 class wire_StringList extends ffi.Struct {
   external ffi.Pointer<ffi.Pointer<wire_uint_8_list>> ptr;
 
   @ffi.Int32()
   external int len;
+}
+
+class wire_DartConversationData extends ffi.Struct {
+  external ffi.Pointer<wire_StringList> participants;
+
+  external ffi.Pointer<wire_uint_8_list> cv_name;
+
+  external ffi.Pointer<wire_uint_8_list> sender_guid;
+}
+
+class wire_DartBalloonBody extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> bid;
+
+  external ffi.Pointer<wire_uint_8_list> data;
+}
+
+class wire_DartNormalMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> text;
+
+  external ffi.Pointer<wire_uint_8_list> xml;
+
+  external ffi.Pointer<wire_DartBalloonBody> body;
+
+  external ffi.Pointer<wire_uint_8_list> effect;
+
+  external ffi.Pointer<wire_uint_8_list> reply_guid;
+
+  external ffi.Pointer<wire_uint_8_list> reply_part;
+}
+
+class wire_DartMessage_Message extends ffi.Struct {
+  external ffi.Pointer<wire_DartNormalMessage> field0;
+}
+
+class wire_DartRenameMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> new_name;
+}
+
+class wire_DartMessage_RenameMessage extends ffi.Struct {
+  external ffi.Pointer<wire_DartRenameMessage> field0;
+}
+
+class wire_DartChangeParticipantMessage extends ffi.Struct {
+  external ffi.Pointer<wire_StringList> new_participants;
+}
+
+class wire_DartMessage_ChangeParticipants extends ffi.Struct {
+  external ffi.Pointer<wire_DartChangeParticipantMessage> field0;
+}
+
+class wire_DartReactMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> to_uuid;
+
+  @ffi.Uint64()
+  external int to_part;
+
+  @ffi.Bool()
+  external bool enable;
+
+  @ffi.Int32()
+  external int reaction;
+
+  external ffi.Pointer<wire_uint_8_list> to_text;
+}
+
+class wire_DartMessage_React extends ffi.Struct {
+  external ffi.Pointer<wire_DartReactMessage> field0;
+}
+
+class wire_DartMessage_Delivered extends ffi.Opaque {}
+
+class wire_DartMessage_Read extends ffi.Opaque {}
+
+class wire_DartMessage_Typing extends ffi.Opaque {}
+
+class wire_DartUnsendMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> tuuid;
+
+  @ffi.Uint64()
+  external int edit_part;
+}
+
+class wire_DartMessage_Unsend extends ffi.Struct {
+  external ffi.Pointer<wire_DartUnsendMessage> field0;
+}
+
+class wire_DartEditMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> tuuid;
+
+  @ffi.Uint64()
+  external int edit_part;
+
+  external ffi.Pointer<wire_uint_8_list> new_data;
+}
+
+class wire_DartMessage_Edit extends ffi.Struct {
+  external ffi.Pointer<wire_DartEditMessage> field0;
+}
+
+class DartMessageKind extends ffi.Union {
+  external ffi.Pointer<wire_DartMessage_Message> Message;
+
+  external ffi.Pointer<wire_DartMessage_RenameMessage> RenameMessage;
+
+  external ffi.Pointer<wire_DartMessage_ChangeParticipants> ChangeParticipants;
+
+  external ffi.Pointer<wire_DartMessage_React> React;
+
+  external ffi.Pointer<wire_DartMessage_Delivered> Delivered;
+
+  external ffi.Pointer<wire_DartMessage_Read> Read;
+
+  external ffi.Pointer<wire_DartMessage_Typing> Typing;
+
+  external ffi.Pointer<wire_DartMessage_Unsend> Unsend;
+
+  external ffi.Pointer<wire_DartMessage_Edit> Edit;
+}
+
+class wire_DartMessage extends ffi.Struct {
+  @ffi.Int32()
+  external int tag;
+
+  external ffi.Pointer<DartMessageKind> kind;
+}
+
+class wire_DartIMessage extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> id;
+
+  external ffi.Pointer<wire_uint_8_list> sender;
+
+  external ffi.Pointer<wire_uint_8_list> after_guid;
+
+  external ffi.Pointer<wire_DartConversationData> conversation;
+
+  external wire_DartMessage message;
+
+  @ffi.Uint64()
+  external int sent_timestamp;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<

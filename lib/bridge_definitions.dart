@@ -7,15 +7,41 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:uuid/uuid.dart';
+import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
+
+part 'bridge_definitions.freezed.dart';
 
 abstract class NativeLib {
   Future<PushState> newPushState({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kNewPushStateConstMeta;
 
+  Future<String> formatE164(
+      {required String number, required String country, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kFormatE164ConstMeta;
+
+  Future<DartRecievedMessage?> recvWait(
+      {required PushState state, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kRecvWaitConstMeta;
+
+  Future<void> send(
+      {required PushState state, required DartIMessage msg, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kSendConstMeta;
+
   Future<List<String>> getHandles({required PushState state, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetHandlesConstMeta;
+
+  Future<DartIMessage> newMsg(
+      {required PushState state,
+      required DartConversationData conversation,
+      required DartMessage message,
+      dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kNewMsgConstMeta;
 
   Future<List<String>> validateTargets(
       {required PushState state, required List<String> targets, dynamic hint});
@@ -26,7 +52,7 @@ abstract class NativeLib {
 
   FlutterRustBridgeTaskConstMeta get kCancelRegistrationConstMeta;
 
-  Future<int> getPhase({required PushState state, dynamic hint});
+  Future<RegistrationPhase> getPhase({required PushState state, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPhaseConstMeta;
 
@@ -73,4 +99,164 @@ class PushState extends FrbOpaque {
 
   @override
   OpaqueTypeFinalizer get staticFinalizer => bridge.PushStateFinalizer;
+}
+
+class DartBalloonBody {
+  String bid;
+  Uint8List data;
+
+  DartBalloonBody({
+    required this.bid,
+    required this.data,
+  });
+}
+
+class DartChangeParticipantMessage {
+  final List<String> newParticipants;
+
+  const DartChangeParticipantMessage({
+    required this.newParticipants,
+  });
+}
+
+class DartConversationData {
+  List<String> participants;
+  String? cvName;
+  String? senderGuid;
+
+  DartConversationData({
+    required this.participants,
+    this.cvName,
+    this.senderGuid,
+  });
+}
+
+class DartEditMessage {
+  final String tuuid;
+  final int editPart;
+  final String newData;
+
+  const DartEditMessage({
+    required this.tuuid,
+    required this.editPart,
+    required this.newData,
+  });
+}
+
+class DartIMessage {
+  String id;
+  String? sender;
+  String? afterGuid;
+  DartConversationData? conversation;
+  DartMessage message;
+  int sentTimestamp;
+
+  DartIMessage({
+    required this.id,
+    this.sender,
+    this.afterGuid,
+    this.conversation,
+    required this.message,
+    required this.sentTimestamp,
+  });
+}
+
+@freezed
+class DartMessage with _$DartMessage {
+  const factory DartMessage.message(
+    DartNormalMessage field0,
+  ) = DartMessage_Message;
+  const factory DartMessage.renameMessage(
+    DartRenameMessage field0,
+  ) = DartMessage_RenameMessage;
+  const factory DartMessage.changeParticipants(
+    DartChangeParticipantMessage field0,
+  ) = DartMessage_ChangeParticipants;
+  const factory DartMessage.react(
+    DartReactMessage field0,
+  ) = DartMessage_React;
+  const factory DartMessage.delivered() = DartMessage_Delivered;
+  const factory DartMessage.read() = DartMessage_Read;
+  const factory DartMessage.typing() = DartMessage_Typing;
+  const factory DartMessage.unsend(
+    DartUnsendMessage field0,
+  ) = DartMessage_Unsend;
+  const factory DartMessage.edit(
+    DartEditMessage field0,
+  ) = DartMessage_Edit;
+}
+
+class DartNormalMessage {
+  String text;
+  String? xml;
+  DartBalloonBody? body;
+  String? effect;
+  String? replyGuid;
+  String? replyPart;
+
+  DartNormalMessage({
+    required this.text,
+    this.xml,
+    this.body,
+    this.effect,
+    this.replyGuid,
+    this.replyPart,
+  });
+}
+
+class DartReactMessage {
+  final String toUuid;
+  final int toPart;
+  final bool enable;
+  final DartReaction reaction;
+  final String toText;
+
+  const DartReactMessage({
+    required this.toUuid,
+    required this.toPart,
+    required this.enable,
+    required this.reaction,
+    required this.toText,
+  });
+}
+
+enum DartReaction {
+  Heart,
+  Like,
+  Dislike,
+  Laugh,
+  Emphsize,
+  Question,
+}
+
+@freezed
+class DartRecievedMessage with _$DartRecievedMessage {
+  const factory DartRecievedMessage.message({
+    required DartIMessage msg,
+  }) = DartRecievedMessage_Message;
+}
+
+class DartRenameMessage {
+  final String newName;
+
+  const DartRenameMessage({
+    required this.newName,
+  });
+}
+
+class DartUnsendMessage {
+  final String tuuid;
+  final int editPart;
+
+  const DartUnsendMessage({
+    required this.tuuid,
+    required this.editPart,
+  });
+}
+
+enum RegistrationPhase {
+  NOT_STARTED,
+  WANTS_USER_PASS,
+  WANTS_VALID_ID,
+  REGISTERED,
 }

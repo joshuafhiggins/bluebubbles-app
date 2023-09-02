@@ -1,5 +1,6 @@
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/models/models.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -126,8 +127,8 @@ void showAddParticipant(BuildContext context, Chat chat) {
                     );
                   }
               );
-              final response = await http.chatParticipant("add", chat.guid, participantController.text);
-              if (response.statusCode == 200) {
+              final response = await backend.chatParticipant("add", chat.guid, participantController.text);
+              if (response) {
                 Get.back();
                 Get.back();
                 showSnackbar("Notice", "Added ${participantController.text} successfully!");

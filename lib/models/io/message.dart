@@ -389,8 +389,8 @@ class Message {
     List<MessageSummaryInfo> msi = [];
     try {
       msi = (json['messageSummaryInfo'] as List? ?? []).map((e) => MessageSummaryInfo.fromJson(e)).toList();
-    } catch (e) {
-      Logger.error('Failed to parse summary info! $e');
+    } catch (e, s) {
+      Logger.error('Failed to parse summary info! $e $s');
     }
 
     PayloadData? payloadData;

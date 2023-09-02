@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:async_task/async_task.dart';
+import 'package:bluebubbles/ffi.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/main.dart';
@@ -15,6 +18,7 @@ import 'package:metadata_fetch/metadata_fetch.dart';
 // (needed when generating objectbox model code)
 // ignore: unnecessary_import
 import 'package:objectbox/objectbox.dart';
+import 'package:supercharged/supercharged.dart';
 import 'package:universal_io/io.dart';
 
 /// Async method to get attachments from objectbox
@@ -494,6 +498,17 @@ class Chat {
     });
     return this;
   }
+  
+  DartConversationData getConversationData() {
+    var handles = participants.map((e) {
+      if (e.address.isEmail) {
+        return "mailto:${e.address}";
+      } else {
+        return "tel:${e.address}";
+      }
+    }).toList();
+    return DartConversationData(participants: handles, cvName: displayName, senderGuid: guid);
+  }
 
   /// Change a chat's display name
   Chat changeName(String? name) {
@@ -655,9 +670,9 @@ class Chat {
       }
       if (privateMark && ss.settings.enablePrivateAPI.value && (autoSendReadReceipts ?? ss.settings.privateMarkChatAsRead.value)) {
         if (!hasUnread) {
-          http.markChatRead(guid);
+          backend.markRead(guid);
         } else if (hasUnread) {
-          http.markChatUnread(guid);
+          backend.getRemoteService()?.markChatUnread(guid);
         }
       }
     } catch (_) {}
@@ -883,7 +898,7 @@ class Chat {
     this.autoSendTypingIndicators = autoSendTypingIndicators;
     save(updateAutoSendTypingIndicators: true);
     if (!(autoSendTypingIndicators ?? ss.settings.privateSendTypingIndicators.value)) {
-      socket.sendMessage("stopped-typing", {"chatGuid": guid});
+      socket.stoppedTyping(guid);
     }
     return this;
   }
@@ -891,6 +906,26 @@ class Chat {
   /// Finds a chat - only use this method on Flutter Web!!!
   static Future<Chat?> findOneWeb({String? guid, String? chatIdentifier}) async {
     return null;
+  }
+
+  static Future<Chat> findByRust(DartConversationData data) async {
+    final name = data.cvName;
+    var dartParticipants = await RustPushBBUtils.rustParticipantsToBB(data.participants);
+
+    final query = (chatBox.query(name == null ? null : Chat_.displayName.equals(name))
+          ..linkMany(Chat_.handles, Handle_.address.oneOf(dartParticipants.map((e) => e.address).toList())))
+            .build();
+    final results = query.find();
+    query.close();
+
+    var result = results.firstWhereOrNull((element) => element.handles.length == dartParticipants.length);
+    if (result == null) {
+      result = Chat.fromMap(await backend.createChat(dartParticipants.map((e) => e.address).toList(), "", "iMessage"));
+      result.displayName = data.cvName;
+      result = result.save();
+      chats.updateChat(result);
+    }
+    return result;
   }
 
   /// Finds a chat - DO NOT use this method on Flutter Web!! Prefer [findOneWeb]

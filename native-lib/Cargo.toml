@@ -6,12 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flutter_rust_bridge = "1"
+flutter_rust_bridge = "=1.75.3"
 rustpush = { path = "/aosp/rustpush" }
 serde_json = "1.0.105"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0.75"
+phonenumber = "0.3.2"
 
 [lib]
 crate-type = ["staticlib", "cdylib"]

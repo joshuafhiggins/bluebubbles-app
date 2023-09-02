@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:bluebubbles/helpers/helpers.dart';
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:flutter/foundation.dart';
@@ -94,7 +95,7 @@ class SettingsService extends GetxService {
   }
 
   Future<Tuple4<int, int, String, int>> getServerDetails({bool refresh = false}) async {
-    if (refresh) {
+    if (refresh && !usingRustPush) {
       final response = await http.serverInfo();
       if (response.statusCode == 200) {
         if (ss.settings.iCloudAccount.isEmpty && response.data['data']['detected_icloud'] is String) {

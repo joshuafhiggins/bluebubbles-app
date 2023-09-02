@@ -12,6 +12,7 @@ import 'package:bluebubbles/app/layouts/conversation_view/pages/messages_view.da
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
 import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -693,9 +694,9 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
                                     ),
                                   );
                                 });
-                            http.createChat(participants, textController.text, method).then((response) async {
+                            backend.createChat(participants, textController.text, method).then((response) async {
                               // Load the chat data and save it to the DB
-                              Chat newChat = Chat.fromMap(response.data["data"]);
+                              Chat newChat = Chat.fromMap(response);
                               newChat = newChat.save();
 
                               // Fetch the newly saved chat data from the DB
@@ -710,8 +711,8 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
                               chats.updateChat(newChat);
 
                               // Fetch the last message for the chat and save it.
-                              final messageRes = await http.chatMessages(newChat.guid, limit: 1);
-                              if (messageRes.data["data"].length > 0) {
+                              final messageRes = await backend.getRemoteService()?.chatMessages(newChat.guid, limit: 1);
+                              if (messageRes != null && messageRes.data["data"].length > 0) {
                                 final messages = (messageRes.data["data"] as List<dynamic>).map((e) => Message.fromMap(e)).toList();
                                 await Chat.bulkSyncMessages(newChat, messages);
                               }

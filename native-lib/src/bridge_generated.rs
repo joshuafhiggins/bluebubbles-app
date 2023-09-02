@@ -31,6 +31,58 @@ fn wire_newPushState_impl(port_: MessagePort) {
         move || move |task_callback| Ok(newPushState()),
     )
 }
+fn wire_format_e164_impl(
+    port_: MessagePort,
+    number: impl Wire2Api<String> + UnwindSafe,
+    country: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "format_e164",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_number = number.wire2api();
+            let api_country = country.wire2api();
+            move |task_callback| Ok(format_e164(api_number, api_country))
+        },
+    )
+}
+fn wire_recv_wait_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "recv_wait",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_state = state.wire2api();
+            move |task_callback| Ok(recv_wait(api_state))
+        },
+    )
+}
+fn wire_send_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    msg: impl Wire2Api<DartIMessage> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "send",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_msg = msg.wire2api();
+            move |task_callback| send(api_state, api_msg)
+        },
+    )
+}
 fn wire_get_handles_impl(
     port_: MessagePort,
     state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
@@ -44,6 +96,26 @@ fn wire_get_handles_impl(
         move || {
             let api_state = state.wire2api();
             move |task_callback| get_handles(api_state)
+        },
+    )
+}
+fn wire_new_msg_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    conversation: impl Wire2Api<DartConversationData> + UnwindSafe,
+    message: impl Wire2Api<DartMessage> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "new_msg",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_conversation = conversation.wire2api();
+            let api_message = message.wire2api();
+            move |task_callback| Ok(new_msg(api_state, api_conversation, api_message))
         },
     )
 }
@@ -208,6 +280,37 @@ where
     }
 }
 
+impl Wire2Api<bool> for bool {
+    fn wire2api(self) -> bool {
+        self
+    }
+}
+
+impl Wire2Api<DartReaction> for i32 {
+    fn wire2api(self) -> DartReaction {
+        match self {
+            0 => DartReaction::Heart,
+            1 => DartReaction::Like,
+            2 => DartReaction::Dislike,
+            3 => DartReaction::Laugh,
+            4 => DartReaction::Emphsize,
+            5 => DartReaction::Question,
+            _ => unreachable!("Invalid variant for DartReaction: {}", self),
+        }
+    }
+}
+
+impl Wire2Api<i32> for i32 {
+    fn wire2api(self) -> i32 {
+        self
+    }
+}
+
+impl Wire2Api<u64> for u64 {
+    fn wire2api(self) -> u64 {
+        self
+    }
+}
 impl Wire2Api<u8> for u8 {
     fn wire2api(self) -> u8 {
         self
@@ -215,6 +318,155 @@ impl Wire2Api<u8> for u8 {
 }
 
 // Section: impl IntoDart
+
+impl support::IntoDart for DartBalloonBody {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.bid.into_dart(), self.data.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartBalloonBody {}
+
+impl support::IntoDart for DartChangeParticipantMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.new_participants.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartChangeParticipantMessage {}
+
+impl support::IntoDart for DartConversationData {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.participants.into_dart(),
+            self.cv_name.into_dart(),
+            self.sender_guid.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartConversationData {}
+
+impl support::IntoDart for DartEditMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.tuuid.into_dart(),
+            self.edit_part.into_dart(),
+            self.new_data.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartEditMessage {}
+
+impl support::IntoDart for DartIMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.id.into_dart(),
+            self.sender.into_dart(),
+            self.after_guid.into_dart(),
+            self.conversation.into_dart(),
+            self.message.into_dart(),
+            self.sent_timestamp.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartIMessage {}
+
+impl support::IntoDart for DartMessage {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Message(field0) => vec![0.into_dart(), field0.into_dart()],
+            Self::RenameMessage(field0) => vec![1.into_dart(), field0.into_dart()],
+            Self::ChangeParticipants(field0) => vec![2.into_dart(), field0.into_dart()],
+            Self::React(field0) => vec![3.into_dart(), field0.into_dart()],
+            Self::Delivered => vec![4.into_dart()],
+            Self::Read => vec![5.into_dart()],
+            Self::Typing => vec![6.into_dart()],
+            Self::Unsend(field0) => vec![7.into_dart(), field0.into_dart()],
+            Self::Edit(field0) => vec![8.into_dart(), field0.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartMessage {}
+impl support::IntoDart for DartNormalMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.text.into_dart(),
+            self.xml.into_dart(),
+            self.body.into_dart(),
+            self.effect.into_dart(),
+            self.reply_guid.into_dart(),
+            self.reply_part.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartNormalMessage {}
+
+impl support::IntoDart for DartReactMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.to_uuid.into_dart(),
+            self.to_part.into_dart(),
+            self.enable.into_dart(),
+            self.reaction.into_dart(),
+            self.to_text.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartReactMessage {}
+
+impl support::IntoDart for DartReaction {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Heart => 0,
+            Self::Like => 1,
+            Self::Dislike => 2,
+            Self::Laugh => 3,
+            Self::Emphsize => 4,
+            Self::Question => 5,
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartReaction {}
+impl support::IntoDart for DartRecievedMessage {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Message { msg } => vec![0.into_dart(), msg.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartRecievedMessage {}
+impl support::IntoDart for DartRenameMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.new_name.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartRenameMessage {}
+
+impl support::IntoDart for DartUnsendMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.tuuid.into_dart(), self.edit_part.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartUnsendMessage {}
+
+impl support::IntoDart for RegistrationPhase {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::NOT_STARTED => 0,
+            Self::WANTS_USER_PASS => 1,
+            Self::WANTS_VALID_ID => 2,
+            Self::REGISTERED => 3,
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RegistrationPhase {}
 
 // Section: executor
 
