@@ -1,15 +1,16 @@
 
 
-use std::{sync::{Arc, RwLock}, borrow::BorrowMut, str::FromStr};
+use std::{sync::{Arc, RwLock}, borrow::BorrowMut, str::FromStr, io::Write};
 
 use anyhow::anyhow;
-use flutter_rust_bridge::{RustOpaque, frb};
+use flutter_rust_bridge::{RustOpaque, frb, StreamSink};
 use phonenumber::country::Id::{self, VE};
 pub use rustpush::{APNSState, APNSConnection, IDSAppleUser, Message, IDSUser, IDSError, IMClient, IMessage, RecievedMessage, ConversationData, register};
 
 use serde::{Serialize, Deserialize};
 use tokio::runtime::Runtime;
-use rustpush::BalloonBody;
+use rustpush::{BalloonBody, MessagePart, MessageParts, Attachment, MMCSFile};
+use std::io::Seek;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct SavedState {
@@ -69,13 +70,93 @@ pub struct DartConversationData {
     pub sender_guid: Option<String>,
 }
 
+#[repr(C)]
+#[derive(Serialize, Deserialize)]
+pub struct DartMMCSFile {
+    pub signature: Vec<u8>,
+    pub object: String,
+    pub url: String,
+    pub key: Vec<u8>,
+    pub size: usize
+}
+
+impl DartMMCSFile {
+    fn get_raw(&self) -> &MMCSFile {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl From<MMCSFile> for DartMMCSFile {
+    fn from(value: MMCSFile) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+#[repr(C)]
+#[derive(Serialize, Deserialize)]
+pub enum DartAttachmentType {
+    Inline(Vec<u8>),
+    MMCS(DartMMCSFile)
+}
+
+#[repr(C)]
+#[derive(Serialize, Deserialize)]
+pub struct DartAttachment {
+    pub a_type: DartAttachmentType,
+    pub part_idx: u64,
+    pub uti_type: String,
+    pub size: usize,
+    pub mime: String,
+    pub name: String
+}
+
+impl DartAttachment {
+    pub fn save(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+
+    pub fn restore(saved: String) -> DartAttachment {
+        serde_json::from_str(&saved).unwrap()
+    }
+
+    fn get_raw(&self) -> &Attachment {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl From<Attachment> for DartAttachment {
+    fn from(value: Attachment) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+#[repr(C)]
+pub enum DartMessagePart {
+    Text(String),
+    Attachment(DartAttachment)
+}
+
+#[repr(C)]
+pub struct DartIndexedMessagePart(pub DartMessagePart, pub Option<usize>);
+
+#[repr(C)]
+pub struct DartMessageParts(pub Vec<DartIndexedMessagePart>);
+
+impl DartMessageParts {
+    fn get_raw(&self) -> &MessageParts {
+        unsafe { std::mem::transmute(self) }
+    }
+
+    pub fn as_plain(&self) -> String {
+        self.get_raw().raw_text()
+    }
+}
+
 #[frb]
 #[repr(C)]
 pub struct DartNormalMessage {
     #[frb(non_final)]
-    pub text: String,
-    #[frb(non_final)]
-    pub xml: Option<String>,
+    pub parts: DartMessageParts,
     #[frb(non_final)]
     pub body: Option<DartBalloonBody>,
     #[frb(non_final)]
@@ -125,7 +206,12 @@ pub struct DartUnsendMessage {
 pub struct DartEditMessage {
     pub tuuid: String,
     pub edit_part: u64,
-    pub new_data: String
+    pub new_parts: DartMessageParts
+}
+
+#[repr(C)]
+pub struct DartIconChangeMessage {
+    pub file: DartMMCSFile
 }
 
 #[repr(C)]
@@ -139,6 +225,7 @@ pub enum DartMessage {
     Typing,
     Unsend(DartUnsendMessage),
     Edit(DartEditMessage),
+    IconChange(DartIconChangeMessage)
 }
 
 #[frb]
@@ -279,6 +366,100 @@ pub fn new_push(state: RustOpaque<PushState>) {
         connection.submitter.set_state(1).await;
         connection.submitter.filter(&["com.apple.madrid"]).await;
         inner.conn = Some(connection);
+    })
+}
+
+pub struct TransferProgress {
+    pub prog: usize,
+    pub total: usize,
+    pub attachment: Option<DartAttachment>
+}
+
+pub fn download_attachment(sink: StreamSink<TransferProgress>, state: RustOpaque<PushState>, attachment: DartAttachment, path: String) -> anyhow::Result<()> {
+    state.1.read().unwrap().block_on(async {
+        let inner = state.0.read().unwrap();
+        let path = std::path::Path::new(&path);
+        let prefix = path.parent().unwrap();
+        std::fs::create_dir_all(prefix).unwrap();
+
+        let mut file = std::fs::File::create(path).unwrap();
+        attachment.get_raw().get_attachment(inner.conn.as_ref().unwrap(), &mut file, &mut |prog, total| {
+            sink.add(TransferProgress {
+                prog,
+                total,
+                attachment: None
+            });
+        }).await?;
+        file.flush().unwrap();
+        sink.close();
+        Ok(())
+    })
+}
+
+pub fn download_mmcs(sink: StreamSink<TransferProgress>, state: RustOpaque<PushState>, attachment: DartMMCSFile, path: String) -> anyhow::Result<()> {
+    state.1.read().unwrap().block_on(async {
+        let inner = state.0.read().unwrap();
+        let path = std::path::Path::new(&path);
+        let prefix = path.parent().unwrap();
+        std::fs::create_dir_all(prefix).unwrap();
+
+        let mut file = std::fs::File::create(path).unwrap();
+        attachment.get_raw().get_attachment(inner.conn.as_ref().unwrap(), &mut file, &mut |prog, total| {
+            sink.add(TransferProgress {
+                prog,
+                total,
+                attachment: None
+            });
+        }).await?;
+        file.flush().unwrap();
+        sink.close();
+        Ok(())
+    })
+}
+
+pub struct MMCSTransferProgress {
+    pub prog: usize,
+    pub total: usize,
+    pub file: Option<DartMMCSFile>
+}
+
+pub fn upload_mmcs(sink: StreamSink<MMCSTransferProgress>, state: RustOpaque<PushState>, path: String) -> anyhow::Result<()> {
+    state.1.read().unwrap().block_on(async {
+        let inner = state.0.read().unwrap();
+
+        let mut file = std::fs::File::open(path).unwrap();
+        let prepared = MMCSFile::prepare_put(&mut file).await?;
+        file.rewind().unwrap();
+        let attachment = MMCSFile::new(inner.conn.as_ref().unwrap(), &prepared, &mut file, &mut |prog, total| {
+            sink.add(MMCSTransferProgress {
+                prog,
+                total,
+                file: None
+            });
+        }).await?;
+        sink.add(MMCSTransferProgress { prog: 0, total: 0, file: Some(attachment.into()) });
+        sink.close();
+        Ok(())
+    })
+}
+
+pub fn upload_attachment(sink: StreamSink<TransferProgress>, state: RustOpaque<PushState>, path: String, mime: String, uti: String, name: String) -> anyhow::Result<()> {
+    state.1.read().unwrap().block_on(async {
+        let inner = state.0.read().unwrap();
+
+        let mut file = std::fs::File::open(path).unwrap();
+        let prepared = MMCSFile::prepare_put(&mut file).await?;
+        file.rewind().unwrap();
+        let attachment = Attachment::new_mmcs(inner.conn.as_ref().unwrap(), &prepared, &mut file, &mime, &uti, &name, &mut |prog, total| {
+            sink.add(TransferProgress {
+                prog,
+                total,
+                attachment: None
+            });
+        }).await?;
+        sink.add(TransferProgress { prog: 0, total: 0, attachment: Some(attachment.into()) });
+        sink.close();
+        Ok(())
     })
 }
 

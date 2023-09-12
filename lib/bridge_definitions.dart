@@ -65,6 +65,37 @@ abstract class NativeLib {
 
   FlutterRustBridgeTaskConstMeta get kNewPushConstMeta;
 
+  Stream<TransferProgress> downloadAttachment(
+      {required PushState state,
+      required DartAttachment attachment,
+      required String path,
+      dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kDownloadAttachmentConstMeta;
+
+  Stream<TransferProgress> downloadMmcs(
+      {required PushState state,
+      required DartMMCSFile attachment,
+      required String path,
+      dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kDownloadMmcsConstMeta;
+
+  Stream<MMCSTransferProgress> uploadMmcs(
+      {required PushState state, required String path, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kUploadMmcsConstMeta;
+
+  Stream<TransferProgress> uploadAttachment(
+      {required PushState state,
+      required String path,
+      required String mime,
+      required String uti,
+      required String name,
+      dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kUploadAttachmentConstMeta;
+
   Future<int> tryAuth(
       {required PushState state,
       required String username,
@@ -81,6 +112,22 @@ abstract class NativeLib {
   Future<String> savePush({required PushState state, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kSavePushConstMeta;
+
+  Future<String> saveMethodDartAttachment(
+      {required DartAttachment that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kSaveMethodDartAttachmentConstMeta;
+
+  Future<DartAttachment> restoreStaticMethodDartAttachment(
+      {required String saved, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta
+      get kRestoreStaticMethodDartAttachmentConstMeta;
+
+  Future<String> asPlainMethodDartMessageParts(
+      {required DartMessageParts that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kAsPlainMethodDartMessagePartsConstMeta;
 
   DropFnType get dropOpaquePushState;
   ShareFnType get shareOpaquePushState;
@@ -99,6 +146,44 @@ class PushState extends FrbOpaque {
 
   @override
   OpaqueTypeFinalizer get staticFinalizer => bridge.PushStateFinalizer;
+}
+
+class DartAttachment {
+  final NativeLib bridge;
+  final DartAttachmentType aType;
+  final int partIdx;
+  final String utiType;
+  final int size;
+  final String mime;
+  final String name;
+
+  const DartAttachment({
+    required this.bridge,
+    required this.aType,
+    required this.partIdx,
+    required this.utiType,
+    required this.size,
+    required this.mime,
+    required this.name,
+  });
+
+  Future<String> save({dynamic hint}) => bridge.saveMethodDartAttachment(
+        that: this,
+      );
+
+  static Future<DartAttachment> restore(
+          {required NativeLib bridge, required String saved, dynamic hint}) =>
+      bridge.restoreStaticMethodDartAttachment(saved: saved, hint: hint);
+}
+
+@freezed
+class DartAttachmentType with _$DartAttachmentType {
+  const factory DartAttachmentType.inline(
+    Uint8List field0,
+  ) = DartAttachmentType_Inline;
+  const factory DartAttachmentType.mmcs(
+    DartMMCSFile field0,
+  ) = DartAttachmentType_MMCS;
 }
 
 class DartBalloonBody {
@@ -134,12 +219,12 @@ class DartConversationData {
 class DartEditMessage {
   final String tuuid;
   final int editPart;
-  final String newData;
+  final DartMessageParts newParts;
 
   const DartEditMessage({
     required this.tuuid,
     required this.editPart,
-    required this.newData,
+    required this.newParts,
   });
 }
 
@@ -158,6 +243,24 @@ class DartIMessage {
     this.conversation,
     required this.message,
     required this.sentTimestamp,
+  });
+}
+
+class DartIconChangeMessage {
+  final DartMMCSFile file;
+
+  const DartIconChangeMessage({
+    required this.file,
+  });
+}
+
+class DartIndexedMessagePart {
+  final DartMessagePart field0;
+  final int? field1;
+
+  const DartIndexedMessagePart({
+    required this.field0,
+    this.field1,
   });
 }
 
@@ -184,19 +287,61 @@ class DartMessage with _$DartMessage {
   const factory DartMessage.edit(
     DartEditMessage field0,
   ) = DartMessage_Edit;
+  const factory DartMessage.iconChange(
+    DartIconChangeMessage field0,
+  ) = DartMessage_IconChange;
+}
+
+@freezed
+class DartMessagePart with _$DartMessagePart {
+  const factory DartMessagePart.text(
+    String field0,
+  ) = DartMessagePart_Text;
+  const factory DartMessagePart.attachment(
+    DartAttachment field0,
+  ) = DartMessagePart_Attachment;
+}
+
+class DartMessageParts {
+  final NativeLib bridge;
+  final List<DartIndexedMessagePart> field0;
+
+  const DartMessageParts({
+    required this.bridge,
+    required this.field0,
+  });
+
+  Future<String> asPlain({dynamic hint}) =>
+      bridge.asPlainMethodDartMessageParts(
+        that: this,
+      );
+}
+
+class DartMMCSFile {
+  final Uint8List signature;
+  final String object;
+  final String url;
+  final Uint8List key;
+  final int size;
+
+  const DartMMCSFile({
+    required this.signature,
+    required this.object,
+    required this.url,
+    required this.key,
+    required this.size,
+  });
 }
 
 class DartNormalMessage {
-  String text;
-  String? xml;
+  DartMessageParts parts;
   DartBalloonBody? body;
   String? effect;
   String? replyGuid;
   String? replyPart;
 
   DartNormalMessage({
-    required this.text,
-    this.xml,
+    required this.parts,
     this.body,
     this.effect,
     this.replyGuid,
@@ -254,9 +399,33 @@ class DartUnsendMessage {
   });
 }
 
+class MMCSTransferProgress {
+  final int prog;
+  final int total;
+  final DartMMCSFile? file;
+
+  const MMCSTransferProgress({
+    required this.prog,
+    required this.total,
+    this.file,
+  });
+}
+
 enum RegistrationPhase {
   NOT_STARTED,
   WANTS_USER_PASS,
   WANTS_VALID_ID,
   REGISTERED,
+}
+
+class TransferProgress {
+  final int prog;
+  final int total;
+  final DartAttachment? attachment;
+
+  const TransferProgress({
+    required this.prog,
+    required this.total,
+    this.attachment,
+  });
 }

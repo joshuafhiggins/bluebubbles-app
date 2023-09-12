@@ -74,6 +74,43 @@ pub extern "C" fn wire_new_push(port_: i64, state: wire_PushState) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_download_attachment(
+    port_: i64,
+    state: wire_PushState,
+    attachment: *mut wire_DartAttachment,
+    path: *mut wire_uint_8_list,
+) {
+    wire_download_attachment_impl(port_, state, attachment, path)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_download_mmcs(
+    port_: i64,
+    state: wire_PushState,
+    attachment: *mut wire_DartMMCSFile,
+    path: *mut wire_uint_8_list,
+) {
+    wire_download_mmcs_impl(port_, state, attachment, path)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_upload_mmcs(port_: i64, state: wire_PushState, path: *mut wire_uint_8_list) {
+    wire_upload_mmcs_impl(port_, state, path)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_upload_attachment(
+    port_: i64,
+    state: wire_PushState,
+    path: *mut wire_uint_8_list,
+    mime: *mut wire_uint_8_list,
+    uti: *mut wire_uint_8_list,
+    name: *mut wire_uint_8_list,
+) {
+    wire_upload_attachment_impl(port_, state, path, mime, uti, name)
+}
+
+#[no_mangle]
 pub extern "C" fn wire_try_auth(
     port_: i64,
     state: wire_PushState,
@@ -97,6 +134,27 @@ pub extern "C" fn wire_save_push(port_: i64, state: wire_PushState) {
     wire_save_push_impl(port_, state)
 }
 
+#[no_mangle]
+pub extern "C" fn wire_save__method__DartAttachment(port_: i64, that: *mut wire_DartAttachment) {
+    wire_save__method__DartAttachment_impl(port_, that)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_restore__static_method__DartAttachment(
+    port_: i64,
+    saved: *mut wire_uint_8_list,
+) {
+    wire_restore__static_method__DartAttachment_impl(port_, saved)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_as_plain__method__DartMessageParts(
+    port_: i64,
+    that: *mut wire_DartMessageParts,
+) {
+    wire_as_plain__method__DartMessageParts_impl(port_, that)
+}
+
 // Section: allocate functions
 
 #[no_mangle]
@@ -111,6 +169,11 @@ pub extern "C" fn new_StringList_0(len: i32) -> *mut wire_StringList {
         len,
     };
     support::new_leak_box_ptr(wrap)
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_dart_attachment_0() -> *mut wire_DartAttachment {
+    support::new_leak_box_ptr(wire_DartAttachment::new_with_null_ptr())
 }
 
 #[no_mangle]
@@ -140,8 +203,23 @@ pub extern "C" fn new_box_autoadd_dart_i_message_0() -> *mut wire_DartIMessage {
 }
 
 #[no_mangle]
+pub extern "C" fn new_box_autoadd_dart_icon_change_message_0() -> *mut wire_DartIconChangeMessage {
+    support::new_leak_box_ptr(wire_DartIconChangeMessage::new_with_null_ptr())
+}
+
+#[no_mangle]
 pub extern "C" fn new_box_autoadd_dart_message_0() -> *mut wire_DartMessage {
     support::new_leak_box_ptr(wire_DartMessage::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_dart_message_parts_0() -> *mut wire_DartMessageParts {
+    support::new_leak_box_ptr(wire_DartMessageParts::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_dart_mmcs_file_0() -> *mut wire_DartMMCSFile {
+    support::new_leak_box_ptr(wire_DartMMCSFile::new_with_null_ptr())
 }
 
 #[no_mangle]
@@ -162,6 +240,22 @@ pub extern "C" fn new_box_autoadd_dart_rename_message_0() -> *mut wire_DartRenam
 #[no_mangle]
 pub extern "C" fn new_box_autoadd_dart_unsend_message_0() -> *mut wire_DartUnsendMessage {
     support::new_leak_box_ptr(wire_DartUnsendMessage::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_usize_0(value: usize) -> *mut usize {
+    support::new_leak_box_ptr(value)
+}
+
+#[no_mangle]
+pub extern "C" fn new_list_dart_indexed_message_part_0(
+    len: i32,
+) -> *mut wire_list_dart_indexed_message_part {
+    let wrap = wire_list_dart_indexed_message_part {
+        ptr: support::new_leak_vec_ptr(<wire_DartIndexedMessagePart>::new_with_null_ptr(), len),
+        len,
+    };
+    support::new_leak_box_ptr(wrap)
 }
 
 #[no_mangle]
@@ -213,6 +307,12 @@ impl Wire2Api<Vec<String>> for *mut wire_StringList {
     }
 }
 
+impl Wire2Api<DartAttachment> for *mut wire_DartAttachment {
+    fn wire2api(self) -> DartAttachment {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        Wire2Api::<DartAttachment>::wire2api(*wrap).into()
+    }
+}
 impl Wire2Api<DartBalloonBody> for *mut wire_DartBalloonBody {
     fn wire2api(self) -> DartBalloonBody {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
@@ -243,10 +343,28 @@ impl Wire2Api<DartIMessage> for *mut wire_DartIMessage {
         Wire2Api::<DartIMessage>::wire2api(*wrap).into()
     }
 }
+impl Wire2Api<DartIconChangeMessage> for *mut wire_DartIconChangeMessage {
+    fn wire2api(self) -> DartIconChangeMessage {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        Wire2Api::<DartIconChangeMessage>::wire2api(*wrap).into()
+    }
+}
 impl Wire2Api<DartMessage> for *mut wire_DartMessage {
     fn wire2api(self) -> DartMessage {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         Wire2Api::<DartMessage>::wire2api(*wrap).into()
+    }
+}
+impl Wire2Api<DartMessageParts> for *mut wire_DartMessageParts {
+    fn wire2api(self) -> DartMessageParts {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        Wire2Api::<DartMessageParts>::wire2api(*wrap).into()
+    }
+}
+impl Wire2Api<DartMMCSFile> for *mut wire_DartMMCSFile {
+    fn wire2api(self) -> DartMMCSFile {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        Wire2Api::<DartMMCSFile>::wire2api(*wrap).into()
     }
 }
 impl Wire2Api<DartNormalMessage> for *mut wire_DartNormalMessage {
@@ -271,6 +389,40 @@ impl Wire2Api<DartUnsendMessage> for *mut wire_DartUnsendMessage {
     fn wire2api(self) -> DartUnsendMessage {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         Wire2Api::<DartUnsendMessage>::wire2api(*wrap).into()
+    }
+}
+impl Wire2Api<usize> for *mut usize {
+    fn wire2api(self) -> usize {
+        unsafe { *support::box_from_leak_ptr(self) }
+    }
+}
+impl Wire2Api<DartAttachment> for wire_DartAttachment {
+    fn wire2api(self) -> DartAttachment {
+        DartAttachment {
+            a_type: self.a_type.wire2api(),
+            part_idx: self.part_idx.wire2api(),
+            uti_type: self.uti_type.wire2api(),
+            size: self.size.wire2api(),
+            mime: self.mime.wire2api(),
+            name: self.name.wire2api(),
+        }
+    }
+}
+impl Wire2Api<DartAttachmentType> for wire_DartAttachmentType {
+    fn wire2api(self) -> DartAttachmentType {
+        match self.tag {
+            0 => unsafe {
+                let ans = support::box_from_leak_ptr(self.kind);
+                let ans = support::box_from_leak_ptr(ans.Inline);
+                DartAttachmentType::Inline(ans.field0.wire2api())
+            },
+            1 => unsafe {
+                let ans = support::box_from_leak_ptr(self.kind);
+                let ans = support::box_from_leak_ptr(ans.MMCS);
+                DartAttachmentType::MMCS(ans.field0.wire2api())
+            },
+            _ => unreachable!(),
+        }
     }
 }
 impl Wire2Api<DartBalloonBody> for wire_DartBalloonBody {
@@ -302,7 +454,7 @@ impl Wire2Api<DartEditMessage> for wire_DartEditMessage {
         DartEditMessage {
             tuuid: self.tuuid.wire2api(),
             edit_part: self.edit_part.wire2api(),
-            new_data: self.new_data.wire2api(),
+            new_parts: self.new_parts.wire2api(),
         }
     }
 }
@@ -316,6 +468,18 @@ impl Wire2Api<DartIMessage> for wire_DartIMessage {
             message: self.message.wire2api(),
             sent_timestamp: self.sent_timestamp.wire2api(),
         }
+    }
+}
+impl Wire2Api<DartIconChangeMessage> for wire_DartIconChangeMessage {
+    fn wire2api(self) -> DartIconChangeMessage {
+        DartIconChangeMessage {
+            file: self.file.wire2api(),
+        }
+    }
+}
+impl Wire2Api<DartIndexedMessagePart> for wire_DartIndexedMessagePart {
+    fn wire2api(self) -> DartIndexedMessagePart {
+        DartIndexedMessagePart(self.field0.wire2api(), self.field1.wire2api())
     }
 }
 impl Wire2Api<DartMessage> for wire_DartMessage {
@@ -354,15 +518,52 @@ impl Wire2Api<DartMessage> for wire_DartMessage {
                 let ans = support::box_from_leak_ptr(ans.Edit);
                 DartMessage::Edit(ans.field0.wire2api())
             },
+            9 => unsafe {
+                let ans = support::box_from_leak_ptr(self.kind);
+                let ans = support::box_from_leak_ptr(ans.IconChange);
+                DartMessage::IconChange(ans.field0.wire2api())
+            },
             _ => unreachable!(),
+        }
+    }
+}
+impl Wire2Api<DartMessagePart> for wire_DartMessagePart {
+    fn wire2api(self) -> DartMessagePart {
+        match self.tag {
+            0 => unsafe {
+                let ans = support::box_from_leak_ptr(self.kind);
+                let ans = support::box_from_leak_ptr(ans.Text);
+                DartMessagePart::Text(ans.field0.wire2api())
+            },
+            1 => unsafe {
+                let ans = support::box_from_leak_ptr(self.kind);
+                let ans = support::box_from_leak_ptr(ans.Attachment);
+                DartMessagePart::Attachment(ans.field0.wire2api())
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+impl Wire2Api<DartMessageParts> for wire_DartMessageParts {
+    fn wire2api(self) -> DartMessageParts {
+        DartMessageParts(self.field0.wire2api())
+    }
+}
+impl Wire2Api<DartMMCSFile> for wire_DartMMCSFile {
+    fn wire2api(self) -> DartMMCSFile {
+        DartMMCSFile {
+            signature: self.signature.wire2api(),
+            object: self.object.wire2api(),
+            url: self.url.wire2api(),
+            key: self.key.wire2api(),
+            size: self.size.wire2api(),
         }
     }
 }
 impl Wire2Api<DartNormalMessage> for wire_DartNormalMessage {
     fn wire2api(self) -> DartNormalMessage {
         DartNormalMessage {
-            text: self.text.wire2api(),
-            xml: self.xml.wire2api(),
+            parts: self.parts.wire2api(),
             body: self.body.wire2api(),
             effect: self.effect.wire2api(),
             reply_guid: self.reply_guid.wire2api(),
@@ -398,6 +599,16 @@ impl Wire2Api<DartUnsendMessage> for wire_DartUnsendMessage {
     }
 }
 
+impl Wire2Api<Vec<DartIndexedMessagePart>> for *mut wire_list_dart_indexed_message_part {
+    fn wire2api(self) -> Vec<DartIndexedMessagePart> {
+        let vec = unsafe {
+            let wrap = support::box_from_leak_ptr(self);
+            support::vec_from_leak_ptr(wrap.ptr, wrap.len)
+        };
+        vec.into_iter().map(Wire2Api::wire2api).collect()
+    }
+}
+
 impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
     fn wire2api(self) -> Vec<u8> {
         unsafe {
@@ -406,6 +617,7 @@ impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
         }
     }
 }
+
 // Section: wire structs
 
 #[repr(C)]
@@ -419,6 +631,17 @@ pub struct wire_PushState {
 pub struct wire_StringList {
     ptr: *mut *mut wire_uint_8_list,
     len: i32,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartAttachment {
+    a_type: wire_DartAttachmentType,
+    part_idx: u64,
+    uti_type: *mut wire_uint_8_list,
+    size: usize,
+    mime: *mut wire_uint_8_list,
+    name: *mut wire_uint_8_list,
 }
 
 #[repr(C)]
@@ -447,7 +670,7 @@ pub struct wire_DartConversationData {
 pub struct wire_DartEditMessage {
     tuuid: *mut wire_uint_8_list,
     edit_part: u64,
-    new_data: *mut wire_uint_8_list,
+    new_parts: wire_DartMessageParts,
 }
 
 #[repr(C)]
@@ -463,9 +686,37 @@ pub struct wire_DartIMessage {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_DartIconChangeMessage {
+    file: wire_DartMMCSFile,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartIndexedMessagePart {
+    field0: wire_DartMessagePart,
+    field1: *mut usize,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessageParts {
+    field0: *mut wire_list_dart_indexed_message_part,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMMCSFile {
+    signature: *mut wire_uint_8_list,
+    object: *mut wire_uint_8_list,
+    url: *mut wire_uint_8_list,
+    key: *mut wire_uint_8_list,
+    size: usize,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_DartNormalMessage {
-    text: *mut wire_uint_8_list,
-    xml: *mut wire_uint_8_list,
+    parts: wire_DartMessageParts,
     body: *mut wire_DartBalloonBody,
     effect: *mut wire_uint_8_list,
     reply_guid: *mut wire_uint_8_list,
@@ -497,9 +748,41 @@ pub struct wire_DartUnsendMessage {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_list_dart_indexed_message_part {
+    ptr: *mut wire_DartIndexedMessagePart,
+    len: i32,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_uint_8_list {
     ptr: *mut u8,
     len: i32,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartAttachmentType {
+    tag: i32,
+    kind: *mut DartAttachmentTypeKind,
+}
+
+#[repr(C)]
+pub union DartAttachmentTypeKind {
+    Inline: *mut wire_DartAttachmentType_Inline,
+    MMCS: *mut wire_DartAttachmentType_MMCS,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartAttachmentType_Inline {
+    field0: *mut wire_uint_8_list,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartAttachmentType_MMCS {
+    field0: *mut wire_DartMMCSFile,
 }
 
 #[repr(C)]
@@ -520,6 +803,7 @@ pub union DartMessageKind {
     Typing: *mut wire_DartMessage_Typing,
     Unsend: *mut wire_DartMessage_Unsend,
     Edit: *mut wire_DartMessage_Edit,
+    IconChange: *mut wire_DartMessage_IconChange,
 }
 
 #[repr(C)]
@@ -570,6 +854,36 @@ pub struct wire_DartMessage_Edit {
     field0: *mut wire_DartEditMessage,
 }
 
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessage_IconChange {
+    field0: *mut wire_DartIconChangeMessage,
+}
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessagePart {
+    tag: i32,
+    kind: *mut DartMessagePartKind,
+}
+
+#[repr(C)]
+pub union DartMessagePartKind {
+    Text: *mut wire_DartMessagePart_Text,
+    Attachment: *mut wire_DartMessagePart_Attachment,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessagePart_Text {
+    field0: *mut wire_uint_8_list,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessagePart_Attachment {
+    field0: *mut wire_DartAttachment,
+}
+
 // Section: impl NewWithNullPtr
 
 pub trait NewWithNullPtr {
@@ -588,6 +902,58 @@ impl NewWithNullPtr for wire_PushState {
             ptr: core::ptr::null(),
         }
     }
+}
+
+impl NewWithNullPtr for wire_DartAttachment {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            a_type: Default::default(),
+            part_idx: Default::default(),
+            uti_type: core::ptr::null_mut(),
+            size: Default::default(),
+            mime: core::ptr::null_mut(),
+            name: core::ptr::null_mut(),
+        }
+    }
+}
+
+impl Default for wire_DartAttachment {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl Default for wire_DartAttachmentType {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl NewWithNullPtr for wire_DartAttachmentType {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            tag: -1,
+            kind: core::ptr::null_mut(),
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn inflate_DartAttachmentType_Inline() -> *mut DartAttachmentTypeKind {
+    support::new_leak_box_ptr(DartAttachmentTypeKind {
+        Inline: support::new_leak_box_ptr(wire_DartAttachmentType_Inline {
+            field0: core::ptr::null_mut(),
+        }),
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn inflate_DartAttachmentType_MMCS() -> *mut DartAttachmentTypeKind {
+    support::new_leak_box_ptr(DartAttachmentTypeKind {
+        MMCS: support::new_leak_box_ptr(wire_DartAttachmentType_MMCS {
+            field0: core::ptr::null_mut(),
+        }),
+    })
 }
 
 impl NewWithNullPtr for wire_DartBalloonBody {
@@ -640,7 +1006,7 @@ impl NewWithNullPtr for wire_DartEditMessage {
         Self {
             tuuid: core::ptr::null_mut(),
             edit_part: Default::default(),
-            new_data: core::ptr::null_mut(),
+            new_parts: Default::default(),
         }
     }
 }
@@ -665,6 +1031,35 @@ impl NewWithNullPtr for wire_DartIMessage {
 }
 
 impl Default for wire_DartIMessage {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl NewWithNullPtr for wire_DartIconChangeMessage {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            file: Default::default(),
+        }
+    }
+}
+
+impl Default for wire_DartIconChangeMessage {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl NewWithNullPtr for wire_DartIndexedMessagePart {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            field0: Default::default(),
+            field1: core::ptr::null_mut(),
+        }
+    }
+}
+
+impl Default for wire_DartIndexedMessagePart {
     fn default() -> Self {
         Self::new_with_null_ptr()
     }
@@ -739,11 +1134,84 @@ pub extern "C" fn inflate_DartMessage_Edit() -> *mut DartMessageKind {
     })
 }
 
+#[no_mangle]
+pub extern "C" fn inflate_DartMessage_IconChange() -> *mut DartMessageKind {
+    support::new_leak_box_ptr(DartMessageKind {
+        IconChange: support::new_leak_box_ptr(wire_DartMessage_IconChange {
+            field0: core::ptr::null_mut(),
+        }),
+    })
+}
+
+impl Default for wire_DartMessagePart {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl NewWithNullPtr for wire_DartMessagePart {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            tag: -1,
+            kind: core::ptr::null_mut(),
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn inflate_DartMessagePart_Text() -> *mut DartMessagePartKind {
+    support::new_leak_box_ptr(DartMessagePartKind {
+        Text: support::new_leak_box_ptr(wire_DartMessagePart_Text {
+            field0: core::ptr::null_mut(),
+        }),
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn inflate_DartMessagePart_Attachment() -> *mut DartMessagePartKind {
+    support::new_leak_box_ptr(DartMessagePartKind {
+        Attachment: support::new_leak_box_ptr(wire_DartMessagePart_Attachment {
+            field0: core::ptr::null_mut(),
+        }),
+    })
+}
+
+impl NewWithNullPtr for wire_DartMessageParts {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            field0: core::ptr::null_mut(),
+        }
+    }
+}
+
+impl Default for wire_DartMessageParts {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
+impl NewWithNullPtr for wire_DartMMCSFile {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            signature: core::ptr::null_mut(),
+            object: core::ptr::null_mut(),
+            url: core::ptr::null_mut(),
+            key: core::ptr::null_mut(),
+            size: Default::default(),
+        }
+    }
+}
+
+impl Default for wire_DartMMCSFile {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
 impl NewWithNullPtr for wire_DartNormalMessage {
     fn new_with_null_ptr() -> Self {
         Self {
-            text: core::ptr::null_mut(),
-            xml: core::ptr::null_mut(),
+            parts: Default::default(),
             body: core::ptr::null_mut(),
             effect: core::ptr::null_mut(),
             reply_guid: core::ptr::null_mut(),

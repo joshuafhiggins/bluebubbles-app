@@ -203,6 +203,111 @@ fn wire_new_push_impl(
         },
     )
 }
+fn wire_download_attachment_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    attachment: impl Wire2Api<DartAttachment> + UnwindSafe,
+    path: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "download_attachment",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_attachment = attachment.wire2api();
+            let api_path = path.wire2api();
+            move |task_callback| {
+                download_attachment(
+                    task_callback.stream_sink(),
+                    api_state,
+                    api_attachment,
+                    api_path,
+                )
+            }
+        },
+    )
+}
+fn wire_download_mmcs_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    attachment: impl Wire2Api<DartMMCSFile> + UnwindSafe,
+    path: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "download_mmcs",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_attachment = attachment.wire2api();
+            let api_path = path.wire2api();
+            move |task_callback| {
+                download_mmcs(
+                    task_callback.stream_sink(),
+                    api_state,
+                    api_attachment,
+                    api_path,
+                )
+            }
+        },
+    )
+}
+fn wire_upload_mmcs_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    path: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "upload_mmcs",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_path = path.wire2api();
+            move |task_callback| upload_mmcs(task_callback.stream_sink(), api_state, api_path)
+        },
+    )
+}
+fn wire_upload_attachment_impl(
+    port_: MessagePort,
+    state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
+    path: impl Wire2Api<String> + UnwindSafe,
+    mime: impl Wire2Api<String> + UnwindSafe,
+    uti: impl Wire2Api<String> + UnwindSafe,
+    name: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "upload_attachment",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_state = state.wire2api();
+            let api_path = path.wire2api();
+            let api_mime = mime.wire2api();
+            let api_uti = uti.wire2api();
+            let api_name = name.wire2api();
+            move |task_callback| {
+                upload_attachment(
+                    task_callback.stream_sink(),
+                    api_state,
+                    api_path,
+                    api_mime,
+                    api_uti,
+                    api_name,
+                )
+            }
+        },
+    )
+}
 fn wire_try_auth_impl(
     port_: MessagePort,
     state: impl Wire2Api<RustOpaque<PushState>> + UnwindSafe,
@@ -254,6 +359,54 @@ fn wire_save_push_impl(
         move || {
             let api_state = state.wire2api();
             move |task_callback| Ok(save_push(api_state))
+        },
+    )
+}
+fn wire_save__method__DartAttachment_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<DartAttachment> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "save__method__DartAttachment",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Ok(DartAttachment::save(&api_that))
+        },
+    )
+}
+fn wire_restore__static_method__DartAttachment_impl(
+    port_: MessagePort,
+    saved: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "restore__static_method__DartAttachment",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_saved = saved.wire2api();
+            move |task_callback| Ok(DartAttachment::restore(api_saved))
+        },
+    )
+}
+fn wire_as_plain__method__DartMessageParts_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<DartMessageParts> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "as_plain__method__DartMessageParts",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Ok(DartMessageParts::as_plain(&api_that))
         },
     )
 }
@@ -317,8 +470,38 @@ impl Wire2Api<u8> for u8 {
     }
 }
 
+impl Wire2Api<usize> for usize {
+    fn wire2api(self) -> usize {
+        self
+    }
+}
 // Section: impl IntoDart
 
+impl support::IntoDart for DartAttachment {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.a_type.into_dart(),
+            self.part_idx.into_dart(),
+            self.uti_type.into_dart(),
+            self.size.into_dart(),
+            self.mime.into_dart(),
+            self.name.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartAttachment {}
+
+impl support::IntoDart for DartAttachmentType {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Inline(field0) => vec![0.into_dart(), field0.into_dart()],
+            Self::MMCS(field0) => vec![1.into_dart(), field0.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartAttachmentType {}
 impl support::IntoDart for DartBalloonBody {
     fn into_dart(self) -> support::DartAbi {
         vec![self.bid.into_dart(), self.data.into_dart()].into_dart()
@@ -350,7 +533,7 @@ impl support::IntoDart for DartEditMessage {
         vec![
             self.tuuid.into_dart(),
             self.edit_part.into_dart(),
-            self.new_data.into_dart(),
+            self.new_parts.into_dart(),
         ]
         .into_dart()
     }
@@ -372,6 +555,20 @@ impl support::IntoDart for DartIMessage {
 }
 impl support::IntoDartExceptPrimitive for DartIMessage {}
 
+impl support::IntoDart for DartIconChangeMessage {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.file.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartIconChangeMessage {}
+
+impl support::IntoDart for DartIndexedMessagePart {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.0.into_dart(), self.1.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartIndexedMessagePart {}
+
 impl support::IntoDart for DartMessage {
     fn into_dart(self) -> support::DartAbi {
         match self {
@@ -384,16 +581,47 @@ impl support::IntoDart for DartMessage {
             Self::Typing => vec![6.into_dart()],
             Self::Unsend(field0) => vec![7.into_dart(), field0.into_dart()],
             Self::Edit(field0) => vec![8.into_dart(), field0.into_dart()],
+            Self::IconChange(field0) => vec![9.into_dart(), field0.into_dart()],
         }
         .into_dart()
     }
 }
 impl support::IntoDartExceptPrimitive for DartMessage {}
+impl support::IntoDart for DartMessagePart {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Text(field0) => vec![0.into_dart(), field0.into_dart()],
+            Self::Attachment(field0) => vec![1.into_dart(), field0.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartMessagePart {}
+impl support::IntoDart for DartMessageParts {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.0.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartMessageParts {}
+
+impl support::IntoDart for DartMMCSFile {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.signature.into_dart(),
+            self.object.into_dart(),
+            self.url.into_dart(),
+            self.key.into_dart(),
+            self.size.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for DartMMCSFile {}
+
 impl support::IntoDart for DartNormalMessage {
     fn into_dart(self) -> support::DartAbi {
         vec![
-            self.text.into_dart(),
-            self.xml.into_dart(),
+            self.parts.into_dart(),
             self.body.into_dart(),
             self.effect.into_dart(),
             self.reply_guid.into_dart(),
@@ -455,6 +683,18 @@ impl support::IntoDart for DartUnsendMessage {
 }
 impl support::IntoDartExceptPrimitive for DartUnsendMessage {}
 
+impl support::IntoDart for MMCSTransferProgress {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.prog.into_dart(),
+            self.total.into_dart(),
+            self.file.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for MMCSTransferProgress {}
+
 impl support::IntoDart for RegistrationPhase {
     fn into_dart(self) -> support::DartAbi {
         match self {
@@ -467,6 +707,17 @@ impl support::IntoDart for RegistrationPhase {
     }
 }
 impl support::IntoDartExceptPrimitive for RegistrationPhase {}
+impl support::IntoDart for TransferProgress {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.prog.into_dart(),
+            self.total.into_dart(),
+            self.attachment.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for TransferProgress {}
 
 // Section: executor
 
