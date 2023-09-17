@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bluebubbles/helpers/helpers.dart';
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,7 @@ class Settings {
   // final RxString emojiFontFamily;
 
   // Private API features
-  final RxBool enablePrivateAPI = false.obs;
+  final RxBool enablePrivateAPI = usingRustPush ? true.obs : false.obs;
   final RxBool privateSendTypingIndicators = false.obs;
   final RxBool privateMarkChatAsRead = false.obs;
   final RxBool privateManualMarkAsRead = false.obs;
@@ -370,7 +371,7 @@ class Settings {
     ss.settings.userName.value = map['userName'] ?? "You";
     ss.settings.privateAPISend.value = map['privateAPISend'] ?? false;
     ss.settings.privateAPIAttachmentSend.value = map['privateAPIAttachmentSend'] ?? false;
-    ss.settings.enablePrivateAPI.value = map['enablePrivateAPI'] ?? false;
+    ss.settings.enablePrivateAPI.value = usingRustPush ? true : map['enablePrivateAPI'] ?? false;
     ss.settings.privateSendTypingIndicators.value = map['privateSendTypingIndicators'] ?? false;
     ss.settings.privateMarkChatAsRead.value = map['privateMarkChatAsRead'] ?? false;
     ss.settings.privateManualMarkAsRead.value = map['privateManualMarkAsRead'] ?? false;
@@ -491,7 +492,7 @@ class Settings {
     s.userAvatarPath.value = map['userAvatarPath'];
     s.privateAPISend.value = map['privateAPISend'] ?? false;
     s.privateAPIAttachmentSend.value = map['privateAPIAttachmentSend'] ?? false;
-    s.enablePrivateAPI.value = map['enablePrivateAPI'] ?? false;
+    s.enablePrivateAPI.value = usingRustPush ? true : map['enablePrivateAPI'] ?? false;
     s.privateSendTypingIndicators.value = map['privateSendTypingIndicators'] ?? false;
     s.privateMarkChatAsRead.value = map['privateMarkChatAsRead'] ?? false;
     s.privateManualMarkAsRead.value = map['privateManualMarkAsRead'] ?? false;

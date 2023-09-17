@@ -92,7 +92,7 @@ class RustPushSocketService extends GetxService implements SocketService {
           controller.cancelTypingIndicator?.cancel();
           controller.cancelTypingIndicator = null;
           var msg = myMsg.message as DartMessage_Message;
-          if (await msg.field0.parts.asPlain() == "" && msg.field0.parts.field0.none((p0) => p0.field0 is DartMessagePart_Attachment)) {
+          if ((await msg.field0.parts.asPlain()) == "" && msg.field0.parts.field0.none((p0) => p0.field0 is DartMessagePart_Attachment)) {
             continue;
           }
         }

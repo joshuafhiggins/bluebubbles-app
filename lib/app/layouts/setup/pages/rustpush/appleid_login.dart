@@ -225,6 +225,7 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
     if (result == 2) {
       controller.updateConnectError("Bad Username or Password");
     }
+    ss.settings.iCloudAccount.value = appleId;
     if (result == 1) {
       controller.updateConnectError("");
       // we need 2fa
@@ -234,6 +235,7 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      return;
     }
     controller.pageController.animateToPage(
       (controller.pageController.page! + 2).toInt(),
