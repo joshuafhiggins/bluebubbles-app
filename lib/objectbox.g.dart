@@ -112,7 +112,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(3, 9017250848141753702),
       name: 'Chat',
-      lastPropertyId: const IdUid(28, 3841196368520260614),
+      lastPropertyId: const IdUid(29, 419554443603699639),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -225,6 +225,11 @@ final _entities = <ModelEntity>[
             id: const IdUid(28, 3841196368520260614),
             name: 'lastReadMessageGuid',
             type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(29, 419554443603699639),
+            name: 'groupVersion',
+            type: 6,
             flags: 0)
       ],
       relations: <ModelRelation>[
@@ -990,7 +995,7 @@ ModelDefinition getObjectBoxModel() {
           final lastReadMessageGuidOffset = object.lastReadMessageGuid == null
               ? null
               : fbb.writeString(object.lastReadMessageGuid!);
-          fbb.startTable(29);
+          fbb.startTable(30);
           fbb.addInt64(0, object.id ?? 0);
           fbb.addOffset(2, guidOffset);
           fbb.addOffset(4, chatIdentifierOffset);
@@ -1014,6 +1019,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addBool(25, object.lockChatName);
           fbb.addBool(26, object.lockChatIcon);
           fbb.addOffset(27, lastReadMessageGuidOffset);
+          fbb.addInt64(28, object.groupVersion);
           fbb.finish(fbb.endTable());
           return object.id ?? 0;
         },
@@ -1041,8 +1047,8 @@ ModelDefinition getObjectBoxModel() {
                   .vTableGetNullable(buffer, rootOffset, 20),
               hasUnreadMessage: const fb.BoolReader()
                   .vTableGetNullable(buffer, rootOffset, 24),
-              displayName:
-                  const fb.StringReader(asciiOptimization: true).vTableGetNullable(buffer, rootOffset, 34),
+              displayName: const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 34),
               autoSendReadReceipts: const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 42),
               autoSendTypingIndicators: const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 44),
               textFieldText: const fb.StringReader(asciiOptimization: true).vTableGetNullable(buffer, rootOffset, 46),
@@ -1060,7 +1066,9 @@ ModelDefinition getObjectBoxModel() {
                 .vTableGetNullable(buffer, rootOffset, 32)
             ..customAvatarPath = const fb.StringReader(asciiOptimization: true)
                 .vTableGetNullable(buffer, rootOffset, 38)
-            ..pinIndex = const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 40);
+            ..pinIndex =
+                const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 40)
+            ..groupVersion = const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 60);
           InternalToManyAccess.setRelInfo<Chat>(
               object.handles, store, RelInfo<Chat>.toMany(1, object.id!));
           InternalToManyAccess.setRelInfo<Chat>(
@@ -1721,6 +1729,10 @@ class Chat_ {
   /// see [Chat.lastReadMessageGuid]
   static final lastReadMessageGuid =
       QueryStringProperty<Chat>(_entities[1].properties[21]);
+
+  /// see [Chat.groupVersion]
+  static final groupVersion =
+      QueryIntegerProperty<Chat>(_entities[1].properties[22]);
 
   /// see [Chat.handles]
   static final handles =

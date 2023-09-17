@@ -333,6 +333,7 @@ class Chat {
   bool lockChatName;
   bool lockChatIcon;
   String? lastReadMessageGuid;
+  int? groupVersion;
 
   final RxnString _customAvatarPath = RxnString();
   String? get customAvatarPath => _customAvatarPath.value;
@@ -404,6 +405,14 @@ class Chat {
     );
   }
 
+  void removeProfilePhoto() {
+    try {
+      File file = File(customAvatarPath!);
+      file.delete();
+    } catch (_) {}
+    customAvatarPath = null;
+  }
+
   /// Save a chat to the DB
   Chat save({
     bool updateMuteType = false,
@@ -422,6 +431,7 @@ class Chat {
     bool updateLockChatName = false,
     bool updateLockChatIcon = false,
     bool updateLastReadMessageGuid = false,
+    bool updateGroupVersion = false,
   }) {
     if (kIsWeb) return this;
     store.runInTransaction(TxMode.write, () {
@@ -475,6 +485,9 @@ class Chat {
       }
       if (!updateLastReadMessageGuid) {
         lastReadMessageGuid = existing?.lastReadMessageGuid ?? lastReadMessageGuid;
+      }
+      if (!updateGroupVersion) {
+        groupVersion = existing?.groupVersion ?? groupVersion;
       }
 
       /// Save the chat and add the participants

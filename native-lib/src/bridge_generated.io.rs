@@ -148,6 +148,14 @@ pub extern "C" fn wire_restore__static_method__DartAttachment(
 }
 
 #[no_mangle]
+pub extern "C" fn wire_get_size__method__DartAttachment(
+    port_: i64,
+    that: *mut wire_DartAttachment,
+) {
+    wire_get_size__method__DartAttachment_impl(port_, that)
+}
+
+#[no_mangle]
 pub extern "C" fn wire_as_plain__method__DartMessageParts(
     port_: i64,
     that: *mut wire_DartMessageParts,
@@ -402,9 +410,9 @@ impl Wire2Api<DartAttachment> for wire_DartAttachment {
             a_type: self.a_type.wire2api(),
             part_idx: self.part_idx.wire2api(),
             uti_type: self.uti_type.wire2api(),
-            size: self.size.wire2api(),
             mime: self.mime.wire2api(),
             name: self.name.wire2api(),
+            iris: self.iris.wire2api(),
         }
     }
 }
@@ -437,6 +445,7 @@ impl Wire2Api<DartChangeParticipantMessage> for wire_DartChangeParticipantMessag
     fn wire2api(self) -> DartChangeParticipantMessage {
         DartChangeParticipantMessage {
             new_participants: self.new_participants.wire2api(),
+            group_version: self.group_version.wire2api(),
         }
     }
 }
@@ -474,6 +483,7 @@ impl Wire2Api<DartIconChangeMessage> for wire_DartIconChangeMessage {
     fn wire2api(self) -> DartIconChangeMessage {
         DartIconChangeMessage {
             file: self.file.wire2api(),
+            group_version: self.group_version.wire2api(),
         }
     }
 }
@@ -523,6 +533,7 @@ impl Wire2Api<DartMessage> for wire_DartMessage {
                 let ans = support::box_from_leak_ptr(ans.IconChange);
                 DartMessage::IconChange(ans.field0.wire2api())
             },
+            10 => DartMessage::StopTyping,
             _ => unreachable!(),
         }
     }
@@ -639,9 +650,9 @@ pub struct wire_DartAttachment {
     a_type: wire_DartAttachmentType,
     part_idx: u64,
     uti_type: *mut wire_uint_8_list,
-    size: usize,
     mime: *mut wire_uint_8_list,
     name: *mut wire_uint_8_list,
+    iris: bool,
 }
 
 #[repr(C)]
@@ -655,6 +666,7 @@ pub struct wire_DartBalloonBody {
 #[derive(Clone)]
 pub struct wire_DartChangeParticipantMessage {
     new_participants: *mut wire_StringList,
+    group_version: u64,
 }
 
 #[repr(C)]
@@ -687,7 +699,8 @@ pub struct wire_DartIMessage {
 #[repr(C)]
 #[derive(Clone)]
 pub struct wire_DartIconChangeMessage {
-    file: wire_DartMMCSFile,
+    file: *mut wire_DartMMCSFile,
+    group_version: u64,
 }
 
 #[repr(C)]
@@ -804,6 +817,7 @@ pub union DartMessageKind {
     Unsend: *mut wire_DartMessage_Unsend,
     Edit: *mut wire_DartMessage_Edit,
     IconChange: *mut wire_DartMessage_IconChange,
+    StopTyping: *mut wire_DartMessage_StopTyping,
 }
 
 #[repr(C)]
@@ -859,6 +873,10 @@ pub struct wire_DartMessage_Edit {
 pub struct wire_DartMessage_IconChange {
     field0: *mut wire_DartIconChangeMessage,
 }
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_DartMessage_StopTyping {}
 #[repr(C)]
 #[derive(Clone)]
 pub struct wire_DartMessagePart {
@@ -910,9 +928,9 @@ impl NewWithNullPtr for wire_DartAttachment {
             a_type: Default::default(),
             part_idx: Default::default(),
             uti_type: core::ptr::null_mut(),
-            size: Default::default(),
             mime: core::ptr::null_mut(),
             name: core::ptr::null_mut(),
+            iris: Default::default(),
         }
     }
 }
@@ -975,6 +993,7 @@ impl NewWithNullPtr for wire_DartChangeParticipantMessage {
     fn new_with_null_ptr() -> Self {
         Self {
             new_participants: core::ptr::null_mut(),
+            group_version: Default::default(),
         }
     }
 }
@@ -1039,7 +1058,8 @@ impl Default for wire_DartIMessage {
 impl NewWithNullPtr for wire_DartIconChangeMessage {
     fn new_with_null_ptr() -> Self {
         Self {
-            file: Default::default(),
+            file: core::ptr::null_mut(),
+            group_version: Default::default(),
         }
     }
 }

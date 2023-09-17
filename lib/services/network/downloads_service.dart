@@ -178,6 +178,7 @@ class AttachmentDownloadController extends GetxController {
       Logger.info("Finished fetching attachment");
       stopwatch.stop();
       Logger.info("Attachment downloaded in ${stopwatch.elapsedMilliseconds} ms");
+      attachmentDownloader._removeFromQueue(this);
       var file = PlatformFile(
         name: attachment.transferName!,
         path: kIsWeb ? null : attachment.path,

@@ -425,6 +425,25 @@ class NativeLibImpl implements NativeLib {
             argNames: ["saved"],
           );
 
+  Future<int> getSizeMethodDartAttachment(
+      {required DartAttachment that, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_dart_attachment(that);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) =>
+          _platform.inner.wire_get_size__method__DartAttachment(port_, arg0),
+      parseSuccessData: _wire2api_usize,
+      constMeta: kGetSizeMethodDartAttachmentConstMeta,
+      argValues: [that],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kGetSizeMethodDartAttachmentConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "get_size__method__DartAttachment",
+        argNames: ["that"],
+      );
+
   Future<String> asPlainMethodDartMessageParts(
       {required DartMessageParts that, dynamic hint}) {
     var arg0 = _platform.api2wire_box_autoadd_dart_message_parts(that);
@@ -538,9 +557,9 @@ class NativeLibImpl implements NativeLib {
       aType: _wire2api_dart_attachment_type(arr[0]),
       partIdx: _wire2api_u64(arr[1]),
       utiType: _wire2api_String(arr[2]),
-      size: _wire2api_usize(arr[3]),
-      mime: _wire2api_String(arr[4]),
-      name: _wire2api_String(arr[5]),
+      mime: _wire2api_String(arr[3]),
+      name: _wire2api_String(arr[4]),
+      iris: _wire2api_bool(arr[5]),
     );
   }
 
@@ -572,10 +591,11 @@ class NativeLibImpl implements NativeLib {
   DartChangeParticipantMessage _wire2api_dart_change_participant_message(
       dynamic raw) {
     final arr = raw as List<dynamic>;
-    if (arr.length != 1)
-      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
     return DartChangeParticipantMessage(
       newParticipants: _wire2api_StringList(arr[0]),
+      groupVersion: _wire2api_u64(arr[1]),
     );
   }
 
@@ -617,10 +637,11 @@ class NativeLibImpl implements NativeLib {
 
   DartIconChangeMessage _wire2api_dart_icon_change_message(dynamic raw) {
     final arr = raw as List<dynamic>;
-    if (arr.length != 1)
-      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
     return DartIconChangeMessage(
-      file: _wire2api_dart_mmcs_file(arr[0]),
+      file: _wire2api_opt_box_autoadd_dart_mmcs_file(arr[0]),
+      groupVersion: _wire2api_u64(arr[1]),
     );
   }
 
@@ -670,6 +691,8 @@ class NativeLibImpl implements NativeLib {
         return DartMessage_IconChange(
           _wire2api_box_autoadd_dart_icon_change_message(raw[1]),
         );
+      case 10:
+        return DartMessage_StopTyping();
       default:
         throw Exception("unreachable");
     }
@@ -1071,6 +1094,12 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_DartMMCSFile> api2wire_opt_box_autoadd_dart_mmcs_file(
+      DartMMCSFile? raw) {
+    return raw == null ? ffi.nullptr : api2wire_box_autoadd_dart_mmcs_file(raw);
+  }
+
+  @protected
   ffi.Pointer<ffi.UintPtr> api2wire_opt_box_autoadd_usize(int? raw) {
     return raw == null ? ffi.nullptr : api2wire_box_autoadd_usize(raw);
   }
@@ -1176,9 +1205,9 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
     _api_fill_to_wire_dart_attachment_type(apiObj.aType, wireObj.a_type);
     wireObj.part_idx = api2wire_u64(apiObj.partIdx);
     wireObj.uti_type = api2wire_String(apiObj.utiType);
-    wireObj.size = api2wire_usize(apiObj.size);
     wireObj.mime = api2wire_String(apiObj.mime);
     wireObj.name = api2wire_String(apiObj.name);
+    wireObj.iris = api2wire_bool(apiObj.iris);
   }
 
   void _api_fill_to_wire_dart_attachment_type(
@@ -1209,6 +1238,7 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
       DartChangeParticipantMessage apiObj,
       wire_DartChangeParticipantMessage wireObj) {
     wireObj.new_participants = api2wire_StringList(apiObj.newParticipants);
+    wireObj.group_version = api2wire_u64(apiObj.groupVersion);
   }
 
   void _api_fill_to_wire_dart_conversation_data(
@@ -1238,7 +1268,8 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
 
   void _api_fill_to_wire_dart_icon_change_message(
       DartIconChangeMessage apiObj, wire_DartIconChangeMessage wireObj) {
-    _api_fill_to_wire_dart_mmcs_file(apiObj.file, wireObj.file);
+    wireObj.file = api2wire_opt_box_autoadd_dart_mmcs_file(apiObj.file);
+    wireObj.group_version = api2wire_u64(apiObj.groupVersion);
   }
 
   void _api_fill_to_wire_dart_indexed_message_part(
@@ -1310,6 +1341,10 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
       wireObj.tag = 9;
       wireObj.kind = inner.inflate_DartMessage_IconChange();
       wireObj.kind.ref.IconChange.ref.field0 = pre_field0;
+      return;
+    }
+    if (apiObj is DartMessage_StopTyping) {
+      wireObj.tag = 10;
       return;
     }
   }
@@ -1386,6 +1421,12 @@ class NativeLibPlatform extends FlutterRustBridgeBase<NativeLibWire> {
       ffi.Pointer<wire_DartConversationData> wireObj) {
     if (apiObj != null)
       _api_fill_to_wire_box_autoadd_dart_conversation_data(apiObj, wireObj);
+  }
+
+  void _api_fill_to_wire_opt_box_autoadd_dart_mmcs_file(
+      DartMMCSFile? apiObj, ffi.Pointer<wire_DartMMCSFile> wireObj) {
+    if (apiObj != null)
+      _api_fill_to_wire_box_autoadd_dart_mmcs_file(apiObj, wireObj);
   }
 }
 
@@ -1883,6 +1924,24 @@ class NativeLibWire implements FlutterRustBridgeWireBase {
       _wire_restore__static_method__DartAttachmentPtr
           .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
+  void wire_get_size__method__DartAttachment(
+    int port_,
+    ffi.Pointer<wire_DartAttachment> that,
+  ) {
+    return _wire_get_size__method__DartAttachment(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire_get_size__method__DartAttachmentPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Int64, ffi.Pointer<wire_DartAttachment>)>>(
+      'wire_get_size__method__DartAttachment');
+  late final _wire_get_size__method__DartAttachment =
+      _wire_get_size__method__DartAttachmentPtr
+          .asFunction<void Function(int, ffi.Pointer<wire_DartAttachment>)>();
+
   void wire_as_plain__method__DartMessageParts(
     int port_,
     ffi.Pointer<wire_DartMessageParts> that,
@@ -2365,12 +2424,12 @@ class wire_DartAttachment extends ffi.Struct {
 
   external ffi.Pointer<wire_uint_8_list> uti_type;
 
-  @ffi.UintPtr()
-  external int size;
-
   external ffi.Pointer<wire_uint_8_list> mime;
 
   external ffi.Pointer<wire_uint_8_list> name;
+
+  @ffi.Bool()
+  external bool iris;
 }
 
 class wire_DartMessagePart_Attachment extends ffi.Struct {
@@ -2439,6 +2498,9 @@ class wire_DartMessage_RenameMessage extends ffi.Struct {
 
 class wire_DartChangeParticipantMessage extends ffi.Struct {
   external ffi.Pointer<wire_StringList> new_participants;
+
+  @ffi.Uint64()
+  external int group_version;
 }
 
 class wire_DartMessage_ChangeParticipants extends ffi.Struct {
@@ -2495,12 +2557,17 @@ class wire_DartMessage_Edit extends ffi.Struct {
 }
 
 class wire_DartIconChangeMessage extends ffi.Struct {
-  external wire_DartMMCSFile file;
+  external ffi.Pointer<wire_DartMMCSFile> file;
+
+  @ffi.Uint64()
+  external int group_version;
 }
 
 class wire_DartMessage_IconChange extends ffi.Struct {
   external ffi.Pointer<wire_DartIconChangeMessage> field0;
 }
+
+class wire_DartMessage_StopTyping extends ffi.Opaque {}
 
 class DartMessageKind extends ffi.Union {
   external ffi.Pointer<wire_DartMessage_Message> Message;
@@ -2522,6 +2589,8 @@ class DartMessageKind extends ffi.Union {
   external ffi.Pointer<wire_DartMessage_Edit> Edit;
 
   external ffi.Pointer<wire_DartMessage_IconChange> IconChange;
+
+  external ffi.Pointer<wire_DartMessage_StopTyping> StopTyping;
 }
 
 class wire_DartMessage extends ffi.Struct {

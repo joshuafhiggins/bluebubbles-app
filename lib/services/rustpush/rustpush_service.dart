@@ -145,8 +145,21 @@ class RustPushBackend implements BackendService {
   }
 
   @override
+  Future<bool> deleteChatIcon(String guid, {CancelToken? cancelToken}) async {
+    var chat = Chat.findOne(guid: guid)!;
+    var msg = await api.newMsg(
+      state: pushService.state,
+      conversation: chat.getConversationData(),
+      message: DartMessage.iconChange(DartIconChangeMessage(groupVersion: chat.groupVersion!))
+    );
+    await api.send(state: pushService.state, msg: msg);
+    return true;
+  }
+
+  @override
   Future<bool> setChatIcon(String guid, String path, {void Function(int p1, int p2)? onSendProgress, CancelToken? cancelToken}) async {
     var chat = Chat.findOne(guid: guid)!;
+    chat.groupVersion = (chat.groupVersion ?? -1) + 1;
     var mmcsStream = api.uploadMmcs(state: pushService.state, path: path);
     DartMMCSFile? mmcs;
     await for (final event in mmcsStream) {
@@ -161,7 +174,7 @@ class RustPushBackend implements BackendService {
     var msg = await api.newMsg(
       state: pushService.state,
       conversation: chat.getConversationData(),
-      message: DartMessage.iconChange(DartIconChangeMessage(file: mmcs!))
+      message: DartMessage.iconChange(DartIconChangeMessage(groupVersion: chat.groupVersion!, file: mmcs!))
     );
     await api.send(state: pushService.state, msg: msg);
     return true;
@@ -200,6 +213,11 @@ class RustPushBackend implements BackendService {
     await api.send(state: pushService.state, msg: msg);
     return true;
   }
+
+  @override
+  bool supportsFocusStates() {
+    return false;
+  }
   
   @override
   Future<bool> markRead(String chatGuid) async {
@@ -233,6 +251,7 @@ class RustPushBackend implements BackendService {
   @override
   Future<bool> chatParticipant(String method, String chatGuid, String newName) async {
     var chat = Chat.findOne(guid: chatGuid)!;
+    chat.groupVersion = (chat.groupVersion ?? -1) + 1;
     var data = chat.getConversationData();
     var newParticipants = data.participants.copy();
     if (method == "add") {
@@ -248,7 +267,7 @@ class RustPushBackend implements BackendService {
     var msg = await api.newMsg(
       state: pushService.state,
       conversation: data,
-      message: DartMessage.changeParticipants(DartChangeParticipantMessage(newParticipants: newParticipants))
+      message: DartMessage.changeParticipants(DartChangeParticipantMessage(groupVersion: chat.groupVersion!, newParticipants: newParticipants))
     );
     await api.send(state: pushService.state, msg: msg);
     msg.sentTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -345,6 +364,29 @@ class RustPushBackend implements BackendService {
   bool canEditUnsend() {
     return true;
   }
+
+  @override
+  Future<bool> downloadLivePhoto(String guid, String target, {void Function(int p1, int p2)? onReceiveProgress, CancelToken? cancelToken}) async {
+    var attachment = Attachment.findOne(guid)!;
+    var rustAttachment = await DartAttachment.restore(bridge: api, saved: attachment.metadata!["myIris"]);
+    var stream = api.downloadAttachment(state: pushService.state, attachment: rustAttachment, path: target);
+    await for (final event in stream) {
+      if (onReceiveProgress != null) {
+        onReceiveProgress(event.prog, event.total);
+      }
+    }
+    return true;
+  }
+
+  @override
+  bool canSchedule() {
+    return false; // don't want to write a local db for scheduled messages rn
+  }
+
+  @override
+  bool supportsFindMy() {
+    return false;
+  }
 }
 
 class RustPushService extends GetxService {
@@ -361,38 +403,53 @@ class RustPushService extends GetxService {
     DartReaction.Question: ReactionTypes.QUESTION,
   };
 
-  Future<Map<String, dynamic>> indexedPartsToAttributedBody(List<DartIndexedMessagePart> parts, String? attachmentGuid, Map<String, dynamic>? existingBody) async {
+  Future<Map<String, dynamic>> indexedPartsToAttributedBody(List<DartIndexedMessagePart> parts, String msgId, Map<String, dynamic>? existingBody) async {
     var bodyString = "";
     var body = existingBody?["runs"] ?? [];
     var attachments = [];
+    var index = -1;
     for (var indexedParts in parts) {
-      var parts = indexedParts.field0;
+      index += 1;
+      var part = indexedParts.field0;
       var fieldIdx = indexedParts.field1 ?? body.length;
       // remove old elements
       body.removeWhere((element) => 
         element["attributes"]["__kIMMessagePartAttributeName"] == fieldIdx
       );
-      if (parts is DartMessagePart_Text) {
+      if (part is DartMessagePart_Text) {
         body.add({
-          "range": [bodyString.length, parts.field0.length],
+          "range": [bodyString.length, part.field0.length],
           "attributes": {
             "__kIMBaseWritingDirectionAttributeName": -1,
             "__kIMMessagePartAttributeName": fieldIdx
           }
         });
-        bodyString += parts.field0;
-      } else if (parts is DartMessagePart_Attachment) {
-        var myUuid = attachmentGuid ?? uuid.v4();
+        bodyString += part.field0;
+      } else if (part is DartMessagePart_Attachment) {
+        if (part.field0.iris) {
+          continue;
+        }
+        DartAttachment? myIris;
+        var next = parts.elementAtOrNull(index + 1);
+        if (next != null && next.field0 is DartMessagePart_Attachment) {
+          var nextA = next.field0 as DartMessagePart_Attachment;
+          if (nextA.field0.iris) {
+            myIris = nextA.field0;
+          }
+        }
+        var myUuid = "${msgId}_$fieldIdx";
         attachments.add({
           "guid": myUuid,
-          "uti": parts.field0.utiType,
-          "mimeType": parts.field0.mime,
+          "uti": part.field0.utiType,
+          "mimeType": part.field0.mime,
           "isOutgoing": false,
-          "transferName": parts.field0.name,
-          "totalBytes": parts.field0.size,
+          "transferName": part.field0.name,
+          "totalBytes": await part.field0.getSize(),
+          "hasLivePhoto": myIris != null,
           "metadata": {
-            "rustpush": await parts.field0.save()
-          }
+            "rustpush": await part.field0.save(),
+            "myIris": await myIris?.save()
+          },
         });
         body.add({
           "range": [bodyString.length, 1],
@@ -415,13 +472,12 @@ class RustPushService extends GetxService {
     };
   }
 
-  Future<Map<String, dynamic>> reflectMessage(DartIMessage myMsg, {String? attachmentGuid}) async {
+  Future<Map<String, dynamic>> reflectMessage(DartIMessage myMsg) async {
     var chat = myMsg.conversation != null ? await Chat.findByRust(myMsg.conversation!) : null;
     var myHandles = (await api.getHandles(state: pushService.state));
     if (myMsg.message is DartMessage_Message) {
       var innerMsg = myMsg.message as DartMessage_Message;
-
-      var attributedBodyData = await indexedPartsToAttributedBody(innerMsg.field0.parts.field0, attachmentGuid, null);
+      var attributedBodyData = await indexedPartsToAttributedBody(innerMsg.field0.parts.field0, myMsg.id, null);
 
       return {
         "guid": myMsg.id,
@@ -437,26 +493,6 @@ class RustPushService extends GetxService {
         "expressiveSendStyleId": innerMsg.field0.effect,
         "attributedBody": attributedBodyData["body"],
         "attachments": attributedBodyData["attachments"]
-      };
-    } else if (myMsg.message is DartMessage_IconChange) {
-      var innerMsg = myMsg.message as DartMessage_IconChange;
-      var path = chat!.getIconPath(innerMsg.field0.file.size);
-      var stream = api.downloadMmcs(state: pushService.state, attachment: innerMsg.field0.file, path: path);
-      await for (final event in stream) {
-        print("Downloaded attachment ${event.prog} bytes of ${event.total}");
-      }
-      chat.customAvatarPath = path;
-      chat.save(updateCustomAvatarPath: true);
-      return {
-        "guid": myMsg.id,
-        "isFromMe": myHandles.contains(myMsg.sender),
-        "handle": RustPushBBUtils.rustHandleToBB(myMsg.sender!).toMap(),
-        "chats": [
-          chat.toMap()
-        ],
-        "dateCreated": myMsg.sentTimestamp,
-        "itemType": 3,
-        "groupActionType": 1,
       };
     } else if (myMsg.message is DartMessage_RenameMessage) {
       var msg = myMsg.message as DartMessage_RenameMessage;
@@ -479,11 +515,12 @@ class RustPushService extends GetxService {
       var changed = isAdd ?
         participantHandles.firstWhere((element) => chat!.participants.none((p0) => p0.address == element.address)) :
         chat.participants.firstWhere((element) => participantHandles.none((p0) => p0.address == element.address));
+      chat.groupVersion = msg.field0.groupVersion;
       chat.handles.clear();
       chat.handles.addAll(participantHandles);
       chat.handles.applyToDb();
       chat = chat.getParticipants();
-      chat.save();
+      chat.save(updateGroupVersion: true);
       return {
         "guid": myMsg.id,
         "isFromMe": myHandles.contains(myMsg.sender),
@@ -495,6 +532,32 @@ class RustPushService extends GetxService {
         "itemType": 1,
         "groupActionType": isAdd ? 0 : 1,
         "otherHandle": changed.originalROWID,
+      };
+    } else if (myMsg.message is DartMessage_IconChange) {
+      var innerMsg = myMsg.message as DartMessage_IconChange;
+      var file = innerMsg.field0.file;
+      chat!.groupVersion = innerMsg.field0.groupVersion;
+      if (file != null) {
+        var path = chat.getIconPath(file.size);
+        var stream = api.downloadMmcs(state: pushService.state, attachment: file, path: path);
+        await for (final event in stream) {
+          print("Downloaded attachment ${event.prog} bytes of ${event.total}");
+        }
+        chat.customAvatarPath = path;
+      } else {
+        chat.removeProfilePhoto();
+      }
+      chat.save(updateCustomAvatarPath: true, updateGroupVersion: true);
+      return {
+        "guid": myMsg.id,
+        "isFromMe": myHandles.contains(myMsg.sender),
+        "handle": RustPushBBUtils.rustHandleToBB(myMsg.sender!).toMap(),
+        "chats": [
+          chat.toMap()
+        ],
+        "dateCreated": myMsg.sentTimestamp,
+        "itemType": 3,
+        "groupActionType": 1,
       };
     } else if (myMsg.message is DartMessage_React) {
       var msg = myMsg.message as DartMessage_React;
@@ -527,8 +590,8 @@ class RustPushService extends GetxService {
       if (!parts.contains(msg.field0.editPart)) {
         parts.add(msg.field0.editPart);
       }
-      var attributedBodyDataInclusive = await indexedPartsToAttributedBody(msg.field0.newParts.field0, attachmentGuid, msgObj.attributedBody.map((e) => e.toMap()).toList().firstOrNull);
-      var attributedBodyEdited = await indexedPartsToAttributedBody(msg.field0.newParts.field0, attachmentGuid, null);
+      var attributedBodyDataInclusive = await indexedPartsToAttributedBody(msg.field0.newParts.field0, myMsg.id, msgObj.attributedBody.map((e) => e.toMap()).toList().firstOrNull);
+      var attributedBodyEdited = await indexedPartsToAttributedBody(msg.field0.newParts.field0, myMsg.id, null);
       map["text"] = attributedBodyDataInclusive["string"];
       map["dateEdited"] = DateTime.now().millisecondsSinceEpoch;
       map["chats"] = [

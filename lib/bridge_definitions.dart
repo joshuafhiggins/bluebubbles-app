@@ -124,6 +124,11 @@ abstract class NativeLib {
   FlutterRustBridgeTaskConstMeta
       get kRestoreStaticMethodDartAttachmentConstMeta;
 
+  Future<int> getSizeMethodDartAttachment(
+      {required DartAttachment that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kGetSizeMethodDartAttachmentConstMeta;
+
   Future<String> asPlainMethodDartMessageParts(
       {required DartMessageParts that, dynamic hint});
 
@@ -153,18 +158,18 @@ class DartAttachment {
   final DartAttachmentType aType;
   final int partIdx;
   final String utiType;
-  final int size;
   final String mime;
   final String name;
+  final bool iris;
 
   const DartAttachment({
     required this.bridge,
     required this.aType,
     required this.partIdx,
     required this.utiType,
-    required this.size,
     required this.mime,
     required this.name,
+    required this.iris,
   });
 
   Future<String> save({dynamic hint}) => bridge.saveMethodDartAttachment(
@@ -174,6 +179,10 @@ class DartAttachment {
   static Future<DartAttachment> restore(
           {required NativeLib bridge, required String saved, dynamic hint}) =>
       bridge.restoreStaticMethodDartAttachment(saved: saved, hint: hint);
+
+  Future<int> getSize({dynamic hint}) => bridge.getSizeMethodDartAttachment(
+        that: this,
+      );
 }
 
 @freezed
@@ -198,9 +207,11 @@ class DartBalloonBody {
 
 class DartChangeParticipantMessage {
   final List<String> newParticipants;
+  final int groupVersion;
 
   const DartChangeParticipantMessage({
     required this.newParticipants,
+    required this.groupVersion,
   });
 }
 
@@ -247,10 +258,12 @@ class DartIMessage {
 }
 
 class DartIconChangeMessage {
-  final DartMMCSFile file;
+  final DartMMCSFile? file;
+  final int groupVersion;
 
   const DartIconChangeMessage({
-    required this.file,
+    this.file,
+    required this.groupVersion,
   });
 }
 
@@ -290,6 +303,7 @@ class DartMessage with _$DartMessage {
   const factory DartMessage.iconChange(
     DartIconChangeMessage field0,
   ) = DartMessage_IconChange;
+  const factory DartMessage.stopTyping() = DartMessage_StopTyping;
 }
 
 @freezed

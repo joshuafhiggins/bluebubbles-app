@@ -394,6 +394,22 @@ fn wire_restore__static_method__DartAttachment_impl(
         },
     )
 }
+fn wire_get_size__method__DartAttachment_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<DartAttachment> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_size__method__DartAttachment",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Ok(DartAttachment::get_size(&api_that))
+        },
+    )
+}
 fn wire_as_plain__method__DartMessageParts_impl(
     port_: MessagePort,
     that: impl Wire2Api<DartMessageParts> + UnwindSafe,
@@ -483,9 +499,9 @@ impl support::IntoDart for DartAttachment {
             self.a_type.into_dart(),
             self.part_idx.into_dart(),
             self.uti_type.into_dart(),
-            self.size.into_dart(),
             self.mime.into_dart(),
             self.name.into_dart(),
+            self.iris.into_dart(),
         ]
         .into_dart()
     }
@@ -511,7 +527,11 @@ impl support::IntoDartExceptPrimitive for DartBalloonBody {}
 
 impl support::IntoDart for DartChangeParticipantMessage {
     fn into_dart(self) -> support::DartAbi {
-        vec![self.new_participants.into_dart()].into_dart()
+        vec![
+            self.new_participants.into_dart(),
+            self.group_version.into_dart(),
+        ]
+        .into_dart()
     }
 }
 impl support::IntoDartExceptPrimitive for DartChangeParticipantMessage {}
@@ -557,7 +577,7 @@ impl support::IntoDartExceptPrimitive for DartIMessage {}
 
 impl support::IntoDart for DartIconChangeMessage {
     fn into_dart(self) -> support::DartAbi {
-        vec![self.file.into_dart()].into_dart()
+        vec![self.file.into_dart(), self.group_version.into_dart()].into_dart()
     }
 }
 impl support::IntoDartExceptPrimitive for DartIconChangeMessage {}
@@ -582,6 +602,7 @@ impl support::IntoDart for DartMessage {
             Self::Unsend(field0) => vec![7.into_dart(), field0.into_dart()],
             Self::Edit(field0) => vec![8.into_dart(), field0.into_dart()],
             Self::IconChange(field0) => vec![9.into_dart(), field0.into_dart()],
+            Self::StopTyping => vec![10.into_dart()],
         }
         .into_dart()
     }

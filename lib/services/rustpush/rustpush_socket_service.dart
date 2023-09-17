@@ -6,6 +6,7 @@ import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:bluebubbles/utils/logger.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:supercharged/supercharged.dart';
 
@@ -74,12 +75,26 @@ class RustPushSocketService extends GetxService implements SocketService {
           controller.cancelTypingIndicator = subscription;
           continue;
         }
+        if (myMsg.message is DartMessage_StopTyping) {
+          var chat = await Chat.findByRust(myMsg.conversation!);
+          final controller = cvc(chat);
+          controller.showTypingIndicator.value = false;
+          if (controller.cancelTypingIndicator != null) {
+            controller.cancelTypingIndicator!.cancel();
+            controller.cancelTypingIndicator = null;
+          }
+          continue;
+        }
         if (myMsg.message is DartMessage_Message) {
           var chat = await Chat.findByRust(myMsg.conversation!);
           final controller = cvc(chat);
           controller.showTypingIndicator.value = false;
           controller.cancelTypingIndicator?.cancel();
           controller.cancelTypingIndicator = null;
+          var msg = myMsg.message as DartMessage_Message;
+          if (await msg.field0.parts.asPlain() == "" && msg.field0.parts.field0.none((p0) => p0.field0 is DartMessagePart_Attachment)) {
+            continue;
+          }
         }
         var service = backend as RustPushBackend;
         service.markDelivered(myMsg);
@@ -103,8 +118,17 @@ class RustPushSocketService extends GetxService implements SocketService {
   }
   
   @override
-  void stoppedTyping(String chatGuid) {
-    // not much to do here, it times out
+  void stoppedTyping(String chatGuid) async {
+    var chat = Chat.findOne(guid: chatGuid)!;
+    if (chat.participants.length > 1) {
+      return; // no typing indicators for multiple chats
+    }
+    var msg = await api.newMsg(
+      state: pushService.state,
+      conversation: chat.getConversationData(),
+      message: const DartMessage.stopTyping()
+    );
+    await api.send(state: pushService.state, msg: msg);
   }
   
   @override

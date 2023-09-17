@@ -9,7 +9,7 @@ pub use rustpush::{APNSState, APNSConnection, IDSAppleUser, Message, IDSUser, ID
 
 use serde::{Serialize, Deserialize};
 use tokio::runtime::Runtime;
-use rustpush::{BalloonBody, MessagePart, MessageParts, Attachment, MMCSFile};
+use rustpush::{BalloonBody, MessagePart, MessageParts, Attachment, MMCSFile, init_logger};
 use std::io::Seek;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -35,6 +35,7 @@ pub struct InnerPushState {
 pub struct PushState (RwLock<InnerPushState>, RwLock<Runtime>);
 
 pub fn newPushState() -> RustOpaque<PushState> {
+    init_logger();
     RustOpaque::new(PushState(RwLock::new(InnerPushState {
         conn: None,
         users: vec![],
@@ -105,9 +106,9 @@ pub struct DartAttachment {
     pub a_type: DartAttachmentType,
     pub part_idx: u64,
     pub uti_type: String,
-    pub size: usize,
     pub mime: String,
-    pub name: String
+    pub name: String,
+    pub iris: bool
 }
 
 impl DartAttachment {
@@ -117,6 +118,10 @@ impl DartAttachment {
 
     pub fn restore(saved: String) -> DartAttachment {
         serde_json::from_str(&saved).unwrap()
+    }
+
+    pub fn get_size(&self) -> usize {
+        self.get_raw().get_size()
     }
 
     fn get_raw(&self) -> &Attachment {
@@ -174,7 +179,8 @@ pub struct DartRenameMessage {
 
 #[repr(C)]
 pub struct DartChangeParticipantMessage {
-    pub new_participants: Vec<String>
+    pub new_participants: Vec<String>,
+    pub group_version: u64
 }
 
 #[repr(C)]
@@ -211,7 +217,8 @@ pub struct DartEditMessage {
 
 #[repr(C)]
 pub struct DartIconChangeMessage {
-    pub file: DartMMCSFile
+    pub file: Option<DartMMCSFile>,
+    pub group_version: u64
 }
 
 #[repr(C)]
@@ -225,7 +232,8 @@ pub enum DartMessage {
     Typing,
     Unsend(DartUnsendMessage),
     Edit(DartEditMessage),
-    IconChange(DartIconChangeMessage)
+    IconChange(DartIconChangeMessage),
+    StopTyping
 }
 
 #[frb]
@@ -378,12 +386,13 @@ pub struct TransferProgress {
 pub fn download_attachment(sink: StreamSink<TransferProgress>, state: RustOpaque<PushState>, attachment: DartAttachment, path: String) -> anyhow::Result<()> {
     state.1.read().unwrap().block_on(async {
         let inner = state.0.read().unwrap();
+        println!("donwloading file {}", path);
         let path = std::path::Path::new(&path);
         let prefix = path.parent().unwrap();
         std::fs::create_dir_all(prefix).unwrap();
-
         let mut file = std::fs::File::create(path).unwrap();
         attachment.get_raw().get_attachment(inner.conn.as_ref().unwrap(), &mut file, &mut |prog, total| {
+            println!("donwloading file {} of {}", prog, total);
             sink.add(TransferProgress {
                 prog,
                 total,

@@ -364,6 +364,7 @@ mixin _$DartMessage {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -378,6 +379,7 @@ mixin _$DartMessage {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -392,6 +394,7 @@ mixin _$DartMessage {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -408,6 +411,7 @@ mixin _$DartMessage {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -422,6 +426,7 @@ mixin _$DartMessage {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -436,6 +441,7 @@ mixin _$DartMessage {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -535,6 +541,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return message(field0);
   }
@@ -552,6 +559,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return message?.call(field0);
   }
@@ -569,6 +577,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (message != null) {
@@ -591,6 +600,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return message(this);
   }
@@ -608,6 +618,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return message?.call(this);
   }
@@ -625,6 +636,7 @@ class _$DartMessage_Message implements DartMessage_Message {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (message != null) {
@@ -721,6 +733,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return renameMessage(field0);
   }
@@ -738,6 +751,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return renameMessage?.call(field0);
   }
@@ -755,6 +769,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (renameMessage != null) {
@@ -777,6 +792,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return renameMessage(this);
   }
@@ -794,6 +810,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return renameMessage?.call(this);
   }
@@ -811,6 +828,7 @@ class _$DartMessage_RenameMessage implements DartMessage_RenameMessage {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (renameMessage != null) {
@@ -909,6 +927,7 @@ class _$DartMessage_ChangeParticipants
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return changeParticipants(field0);
   }
@@ -926,6 +945,7 @@ class _$DartMessage_ChangeParticipants
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return changeParticipants?.call(field0);
   }
@@ -943,6 +963,7 @@ class _$DartMessage_ChangeParticipants
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (changeParticipants != null) {
@@ -965,6 +986,7 @@ class _$DartMessage_ChangeParticipants
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return changeParticipants(this);
   }
@@ -982,6 +1004,7 @@ class _$DartMessage_ChangeParticipants
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return changeParticipants?.call(this);
   }
@@ -999,6 +1022,7 @@ class _$DartMessage_ChangeParticipants
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (changeParticipants != null) {
@@ -1094,6 +1118,7 @@ class _$DartMessage_React implements DartMessage_React {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return react(field0);
   }
@@ -1111,6 +1136,7 @@ class _$DartMessage_React implements DartMessage_React {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return react?.call(field0);
   }
@@ -1128,6 +1154,7 @@ class _$DartMessage_React implements DartMessage_React {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (react != null) {
@@ -1150,6 +1177,7 @@ class _$DartMessage_React implements DartMessage_React {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return react(this);
   }
@@ -1167,6 +1195,7 @@ class _$DartMessage_React implements DartMessage_React {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return react?.call(this);
   }
@@ -1184,6 +1213,7 @@ class _$DartMessage_React implements DartMessage_React {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (react != null) {
@@ -1252,6 +1282,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return delivered();
   }
@@ -1269,6 +1300,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return delivered?.call();
   }
@@ -1286,6 +1318,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (delivered != null) {
@@ -1308,6 +1341,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return delivered(this);
   }
@@ -1325,6 +1359,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return delivered?.call(this);
   }
@@ -1342,6 +1377,7 @@ class _$DartMessage_Delivered implements DartMessage_Delivered {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (delivered != null) {
@@ -1404,6 +1440,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return read();
   }
@@ -1421,6 +1458,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return read?.call();
   }
@@ -1438,6 +1476,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (read != null) {
@@ -1460,6 +1499,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return read(this);
   }
@@ -1477,6 +1517,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return read?.call(this);
   }
@@ -1494,6 +1535,7 @@ class _$DartMessage_Read implements DartMessage_Read {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (read != null) {
@@ -1556,6 +1598,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return typing();
   }
@@ -1573,6 +1616,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return typing?.call();
   }
@@ -1590,6 +1634,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (typing != null) {
@@ -1612,6 +1657,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return typing(this);
   }
@@ -1629,6 +1675,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return typing?.call(this);
   }
@@ -1646,6 +1693,7 @@ class _$DartMessage_Typing implements DartMessage_Typing {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (typing != null) {
@@ -1735,6 +1783,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return unsend(field0);
   }
@@ -1752,6 +1801,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return unsend?.call(field0);
   }
@@ -1769,6 +1819,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (unsend != null) {
@@ -1791,6 +1842,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return unsend(this);
   }
@@ -1808,6 +1860,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return unsend?.call(this);
   }
@@ -1825,6 +1878,7 @@ class _$DartMessage_Unsend implements DartMessage_Unsend {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (unsend != null) {
@@ -1919,6 +1973,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return edit(field0);
   }
@@ -1936,6 +1991,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return edit?.call(field0);
   }
@@ -1953,6 +2009,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (edit != null) {
@@ -1975,6 +2032,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return edit(this);
   }
@@ -1992,6 +2050,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return edit?.call(this);
   }
@@ -2009,6 +2068,7 @@ class _$DartMessage_Edit implements DartMessage_Edit {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (edit != null) {
@@ -2104,6 +2164,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     required TResult Function(DartUnsendMessage field0) unsend,
     required TResult Function(DartEditMessage field0) edit,
     required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
   }) {
     return iconChange(field0);
   }
@@ -2121,6 +2182,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     TResult? Function(DartUnsendMessage field0)? unsend,
     TResult? Function(DartEditMessage field0)? edit,
     TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
   }) {
     return iconChange?.call(field0);
   }
@@ -2138,6 +2200,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     TResult Function(DartUnsendMessage field0)? unsend,
     TResult Function(DartEditMessage field0)? edit,
     TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
     required TResult orElse(),
   }) {
     if (iconChange != null) {
@@ -2160,6 +2223,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     required TResult Function(DartMessage_Unsend value) unsend,
     required TResult Function(DartMessage_Edit value) edit,
     required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
   }) {
     return iconChange(this);
   }
@@ -2177,6 +2241,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     TResult? Function(DartMessage_Unsend value)? unsend,
     TResult? Function(DartMessage_Edit value)? edit,
     TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
   }) {
     return iconChange?.call(this);
   }
@@ -2194,6 +2259,7 @@ class _$DartMessage_IconChange implements DartMessage_IconChange {
     TResult Function(DartMessage_Unsend value)? unsend,
     TResult Function(DartMessage_Edit value)? edit,
     TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
     required TResult orElse(),
   }) {
     if (iconChange != null) {
@@ -2211,6 +2277,164 @@ abstract class DartMessage_IconChange implements DartMessage {
   @JsonKey(ignore: true)
   _$$DartMessage_IconChangeCopyWith<_$DartMessage_IconChange> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$DartMessage_StopTypingCopyWith<$Res> {
+  factory _$$DartMessage_StopTypingCopyWith(_$DartMessage_StopTyping value,
+          $Res Function(_$DartMessage_StopTyping) then) =
+      __$$DartMessage_StopTypingCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$DartMessage_StopTypingCopyWithImpl<$Res>
+    extends _$DartMessageCopyWithImpl<$Res, _$DartMessage_StopTyping>
+    implements _$$DartMessage_StopTypingCopyWith<$Res> {
+  __$$DartMessage_StopTypingCopyWithImpl(_$DartMessage_StopTyping _value,
+      $Res Function(_$DartMessage_StopTyping) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$DartMessage_StopTyping implements DartMessage_StopTyping {
+  const _$DartMessage_StopTyping();
+
+  @override
+  String toString() {
+    return 'DartMessage.stopTyping()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$DartMessage_StopTyping);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(DartNormalMessage field0) message,
+    required TResult Function(DartRenameMessage field0) renameMessage,
+    required TResult Function(DartChangeParticipantMessage field0)
+        changeParticipants,
+    required TResult Function(DartReactMessage field0) react,
+    required TResult Function() delivered,
+    required TResult Function() read,
+    required TResult Function() typing,
+    required TResult Function(DartUnsendMessage field0) unsend,
+    required TResult Function(DartEditMessage field0) edit,
+    required TResult Function(DartIconChangeMessage field0) iconChange,
+    required TResult Function() stopTyping,
+  }) {
+    return stopTyping();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(DartNormalMessage field0)? message,
+    TResult? Function(DartRenameMessage field0)? renameMessage,
+    TResult? Function(DartChangeParticipantMessage field0)? changeParticipants,
+    TResult? Function(DartReactMessage field0)? react,
+    TResult? Function()? delivered,
+    TResult? Function()? read,
+    TResult? Function()? typing,
+    TResult? Function(DartUnsendMessage field0)? unsend,
+    TResult? Function(DartEditMessage field0)? edit,
+    TResult? Function(DartIconChangeMessage field0)? iconChange,
+    TResult? Function()? stopTyping,
+  }) {
+    return stopTyping?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(DartNormalMessage field0)? message,
+    TResult Function(DartRenameMessage field0)? renameMessage,
+    TResult Function(DartChangeParticipantMessage field0)? changeParticipants,
+    TResult Function(DartReactMessage field0)? react,
+    TResult Function()? delivered,
+    TResult Function()? read,
+    TResult Function()? typing,
+    TResult Function(DartUnsendMessage field0)? unsend,
+    TResult Function(DartEditMessage field0)? edit,
+    TResult Function(DartIconChangeMessage field0)? iconChange,
+    TResult Function()? stopTyping,
+    required TResult orElse(),
+  }) {
+    if (stopTyping != null) {
+      return stopTyping();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(DartMessage_Message value) message,
+    required TResult Function(DartMessage_RenameMessage value) renameMessage,
+    required TResult Function(DartMessage_ChangeParticipants value)
+        changeParticipants,
+    required TResult Function(DartMessage_React value) react,
+    required TResult Function(DartMessage_Delivered value) delivered,
+    required TResult Function(DartMessage_Read value) read,
+    required TResult Function(DartMessage_Typing value) typing,
+    required TResult Function(DartMessage_Unsend value) unsend,
+    required TResult Function(DartMessage_Edit value) edit,
+    required TResult Function(DartMessage_IconChange value) iconChange,
+    required TResult Function(DartMessage_StopTyping value) stopTyping,
+  }) {
+    return stopTyping(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(DartMessage_Message value)? message,
+    TResult? Function(DartMessage_RenameMessage value)? renameMessage,
+    TResult? Function(DartMessage_ChangeParticipants value)? changeParticipants,
+    TResult? Function(DartMessage_React value)? react,
+    TResult? Function(DartMessage_Delivered value)? delivered,
+    TResult? Function(DartMessage_Read value)? read,
+    TResult? Function(DartMessage_Typing value)? typing,
+    TResult? Function(DartMessage_Unsend value)? unsend,
+    TResult? Function(DartMessage_Edit value)? edit,
+    TResult? Function(DartMessage_IconChange value)? iconChange,
+    TResult? Function(DartMessage_StopTyping value)? stopTyping,
+  }) {
+    return stopTyping?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(DartMessage_Message value)? message,
+    TResult Function(DartMessage_RenameMessage value)? renameMessage,
+    TResult Function(DartMessage_ChangeParticipants value)? changeParticipants,
+    TResult Function(DartMessage_React value)? react,
+    TResult Function(DartMessage_Delivered value)? delivered,
+    TResult Function(DartMessage_Read value)? read,
+    TResult Function(DartMessage_Typing value)? typing,
+    TResult Function(DartMessage_Unsend value)? unsend,
+    TResult Function(DartMessage_Edit value)? edit,
+    TResult Function(DartMessage_IconChange value)? iconChange,
+    TResult Function(DartMessage_StopTyping value)? stopTyping,
+    required TResult orElse(),
+  }) {
+    if (stopTyping != null) {
+      return stopTyping(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class DartMessage_StopTyping implements DartMessage {
+  const factory DartMessage_StopTyping() = _$DartMessage_StopTyping;
 }
 
 /// @nodoc
