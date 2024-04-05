@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:async_task/async_task.dart';
+import 'package:bluebubbles/src/rust/api/api.dart' as api;
+import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/main.dart';
@@ -15,6 +18,7 @@ import 'package:metadata_fetch/metadata_fetch.dart';
 // (needed when generating objectbox model code)
 // ignore: unnecessary_import
 import 'package:objectbox/objectbox.dart';
+import 'package:supercharged/supercharged.dart';
 import 'package:universal_io/io.dart';
 
 /// Async method to get attachments from objectbox
@@ -286,6 +290,7 @@ class Chat {
   bool? isPinned;
   bool? hasUnreadMessage;
   String? title;
+  String? apnTitle;
   String get properTitle {
     if (ss.settings.redactedMode.value && ss.settings.hideContactInfo.value) {
       return getTitle();
@@ -329,6 +334,7 @@ class Chat {
   bool lockChatName;
   bool lockChatIcon;
   String? lastReadMessageGuid;
+  int? groupVersion;
 
   final RxnString _customAvatarPath = RxnString();
   String? get customAvatarPath => _customAvatarPath.value;
@@ -340,13 +346,15 @@ class Chat {
 
   final handles = ToMany<Handle>();
 
+  String? usingHandle;
+
   @Backlink('chat')
   final messages = ToMany<Message>();
 
   Chat({
     this.id,
     required this.guid,
-    this.chatIdentifier,
+    this.chatIdentifier, // how is this different from GUID?
     this.isArchived = false,
     this.isPinned = false,
     this.muteType,
@@ -366,6 +374,7 @@ class Chat {
     this.lockChatName = false,
     this.lockChatIcon = false,
     this.lastReadMessageGuid,
+    this.usingHandle,
   }) {
     customAvatarPath = customAvatar;
     pinIndex = pinnedIndex;
@@ -397,7 +406,16 @@ class Chat {
       lockChatName: json["lockChatName"] ?? false,
       lockChatIcon: json["lockChatIcon"] ?? false,
       lastReadMessageGuid: json["lastReadMessageGuid"],
+      usingHandle: json["usingHandle"],
     );
+  }
+
+  Future<String> ensureHandle() async {
+    if (usingHandle == null) {
+      usingHandle = await (backend as RustPushBackend).getDefaultHandle();
+      save(updateUsingHandle: true);
+    }
+    return usingHandle!;
   }
 
   void removeProfilePhoto() {
@@ -426,6 +444,9 @@ class Chat {
     bool updateLockChatName = false,
     bool updateLockChatIcon = false,
     bool updateLastReadMessageGuid = false,
+    bool updateGroupVersion = false,
+    bool updateUsingHandle = false,
+    bool updateAPNTitle = false
   }) {
     if (kIsWeb) return this;
     store.runInTransaction(TxMode.write, () {
@@ -462,6 +483,9 @@ class Chat {
       if (!updateTextFieldText) {
         textFieldText = existing?.textFieldText ?? textFieldText;
       }
+      if (!updateAPNTitle) {
+        apnTitle = existing?.apnTitle ?? apnTitle;
+      }
       if (!updateTextFieldAttachments) {
         textFieldAttachments = existing?.textFieldAttachments ?? textFieldAttachments;
       }
@@ -479,6 +503,12 @@ class Chat {
       }
       if (!updateLastReadMessageGuid) {
         lastReadMessageGuid = existing?.lastReadMessageGuid ?? lastReadMessageGuid;
+      }
+      if (!updateGroupVersion) {
+        groupVersion = existing?.groupVersion ?? groupVersion;
+      }
+      if (!updateUsingHandle) {
+        usingHandle = existing?.usingHandle ?? usingHandle;
       }
 
       /// Save the chat and add the participants
@@ -501,6 +531,17 @@ class Chat {
       } on UniqueViolationException catch (_) {}
     });
     return this;
+  }
+  
+  api.DartConversationData getConversationData() {
+    var handles = participants.map((e) {
+      if (e.address.isEmail) {
+        return "mailto:${e.address}";
+      } else {
+        return "tel:${e.address}";
+      }
+    }).toList();
+    return api.DartConversationData(participants: handles, cvName: apnTitle, senderGuid: guid);
   }
 
   /// Change a chat's display name
@@ -899,6 +940,37 @@ class Chat {
   /// Finds a chat - only use this method on Flutter Web!!!
   static Future<Chat?> findOneWeb({String? guid, String? chatIdentifier}) async {
     return null;
+  }
+
+  static Future<Chat> findByRust(api.DartConversationData data) async {
+    final name = data.cvName;
+    var dartParticipants = await RustPushBBUtils.rustParticipantsToBB(data.participants);
+
+    final query = (chatBox.query(name == null ? null : Chat_.apnTitle.equals(name))
+          ..linkMany(Chat_.handles, Handle_.address.oneOf(dartParticipants.map((e) => e.address).toList())))
+            .build();
+    final results = query.find();
+    query.close();
+
+    var result = results.firstWhereOrNull((element) {
+      var participantsCopy = [...dartParticipants];
+      for (var handle in element.handles) {
+        var included = participantsCopy.contains(handle);
+        if (!included) {
+          return false;
+        }
+        participantsCopy.remove(handle);
+      }
+      return participantsCopy.isEmpty;
+    });
+    if (result == null) {
+      result = await backend.createChat(dartParticipants.map((e) => e.address).toList(), null, "iMessage");
+      result.displayName = data.cvName;
+      result.apnTitle = data.cvName;
+      result = result.save();
+      chats.updateChat(result);
+    }
+    return result;
   }
 
   /// Finds a chat - DO NOT use this method on Flutter Web!! Prefer [findOneWeb]

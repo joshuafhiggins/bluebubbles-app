@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/main.dart';
@@ -42,6 +43,10 @@ class MethodChannelService extends GetxService {
   Future<bool> _callHandler(MethodCall call) async {
     final Map<String, dynamic>? arguments = call.arguments is String ? jsonDecode(call.arguments) : call.arguments?.cast<String, Object>();
     switch (call.method) {
+      case "APNMsg":
+        String pointer = call.arguments.toString();
+        await pushService.recievedMsgPointer(pointer);
+        return true;
       case "NewServerUrl":
         if (arguments == null) return false;
         await storeStartup.future;

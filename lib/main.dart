@@ -9,6 +9,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bluebubbles/app/components/custom/custom_error_box.dart';
 import 'package:bluebubbles/migrations/handle_migration_helpers.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/src/rust/frb_generated.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/utils/window_effects.dart';
 import 'package:bluebubbles/app/layouts/conversation_list/pages/conversation_list.dart';
@@ -51,9 +53,11 @@ import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
+const usingRustPush = true;
 const databaseVersion = 4;
 late final Store store;
 late final Box<Attachment> attachmentBox;
+late final Admin admin;
 late final Box<Chat> chatBox;
 late final Box<Contact> contactBox;
 late final Box<FCMData> fcmDataBox;
@@ -85,10 +89,12 @@ Future<Null> bubble() async {
 Future<Null> initApp(bool bubble, List<String> arguments) async {
   WidgetsFlutterBinding.ensureInitialized();
   /* ----- SERVICES INITIALIZATION ----- */
+  await RustLib.init();
   ls.isBubble = bubble;
   ls.isUiThread = true;
   await ss.init();
   await fs.init();
+  backend.init();
   await Logger.init();
   Logger.startup.value = true;
   Logger.info('Startup Logs');
@@ -201,6 +207,10 @@ Future<Null> initApp(bool bubble, List<String> arguments) async {
           Logger.error(e);
           Logger.error(s);
         }
+      }
+      if (Admin.isAvailable()) {
+        // Keep a reference until no longer needed or manually closed.
+        admin = Admin(store);
       }
       attachmentBox = store.box<Attachment>();
       chatBox = store.box<Chat>();

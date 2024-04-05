@@ -64,7 +64,7 @@ class LifecycleService extends GetxService with WidgetsBindingObserver {
     }
 
     if (http.originOverride == null) {
-      NetworkTasks.detectLocalhost();
+      // NetworkTasks.detectLocalhost();
     }
     if (!kIsDesktop && !kIsWeb) {
       if (!isBubble) {

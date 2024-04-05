@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/utils/crypto_utils.dart';
 import 'package:bluebubbles/utils/logger.dart';
@@ -34,13 +35,15 @@ class SocketService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    startSocket();
-    Connectivity().onConnectivityChanged.listen((event) {
-      if (event != ConnectivityResult.wifi && event != ConnectivityResult.ethernet && http.originOverride != null) {
-        Logger.info("Detected switch off wifi, removing localhost address...");
-        http.originOverride = null;
-      }
-    });
+    if (!usingRustPush) {
+      startSocket();
+      Connectivity().onConnectivityChanged.listen((event) {
+        if (event != ConnectivityResult.wifi && event != ConnectivityResult.ethernet && http.originOverride != null) {
+          Logger.info("Detected switch off wifi, removing localhost address...");
+          http.originOverride = null;
+        }
+      });
+    }
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:bluebubbles/app/layouts/conversation_view/widgets/message/reacti
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/settings/widgets/settings_widgets.dart';
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,7 +61,7 @@ class _PrivateAPIPanelState extends CustomState<PrivateAPIPanel, void, PrivateAP
   Widget build(BuildContext context) {
     return SettingsScaffold(
         title: "Private API Features",
-        initialHeader: "Private API",
+        initialHeader: usingRustPush ? null : "Private API",
         iosSubtitle: iosSubtitle,
         materialSubtitle: materialSubtitle,
         tileColor: tileColor,
@@ -69,6 +70,7 @@ class _PrivateAPIPanelState extends CustomState<PrivateAPIPanel, void, PrivateAP
           SliverList(
             delegate: SliverChildListDelegate(
               <Widget>[
+                if (!usingRustPush)
                 Obx(
                   () => SettingsSection(
                     backgroundColor: tileColor,

@@ -163,7 +163,7 @@ class _MiscPanelState extends OptimizedState<MiscPanel> {
                           child: SettingsDivider(color: context.theme.colorScheme.surfaceVariant),
                         ),
                       ),
-                    if (!kIsWeb && !kIsDesktop)
+                    if (!kIsWeb && !kIsDesktop && !usingRustPush)
                       Obx(() => SettingsSwitch(
                         onChanged: (bool val) async {
                           ss.settings.keepAppAlive.value = val;

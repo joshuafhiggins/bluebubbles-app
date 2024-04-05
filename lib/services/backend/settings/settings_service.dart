@@ -5,6 +5,7 @@ import 'package:bluebubbles/app/layouts/settings/settings_page.dart';
 import 'package:bluebubbles/app/wrappers/scrollbar_wrapper.dart';
 import 'package:bluebubbles/app/wrappers/theme_switcher.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/services/services.dart';
@@ -99,7 +100,7 @@ class SettingsService extends GetxService {
   }
 
   Future<Tuple4<int, int, String, int>> getServerDetails({bool refresh = false}) async {
-    if (refresh) {
+    if (refresh && !usingRustPush) {
       final response = await http.serverInfo();
       if (response.statusCode == 200) {
         if (settings.iCloudAccount.isEmpty && response.data['data']['detected_icloud'] is String) {
