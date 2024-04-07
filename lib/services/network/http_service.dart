@@ -289,14 +289,12 @@ class HttpService extends GetxService {
 
   /// Check ping time for server
   Future<Response> ping({CancelToken? cancelToken}) async {
-    return runApiGuarded(() async {
-      final response = await dio.get(
+    final response = await dio.get(
           "$apiRoot/ping",
           queryParameters: buildQueryParams(),
           cancelToken: cancelToken
       );
       return returnSuccessOrError(response);
-    });
   }
 
   /// Lock Mac device
@@ -1351,15 +1349,13 @@ class HttpService extends GetxService {
   }
 
   Future<Response> downloadFromUrl(String url, {Function(int, int)? progress, CancelToken? cancelToken}) async {
-    return runApiGuarded(() async {
-      final response = await dio.get(
-          url,
-          options: Options(responseType: ResponseType.bytes, receiveTimeout: dio.options.receiveTimeout! * 12, headers: headers),
-          cancelToken: cancelToken,
-          onReceiveProgress: progress,
-      );
-      return returnSuccessOrError(response);
-    });
+    final response = await dio.get(
+        url,
+        options: Options(responseType: ResponseType.bytes, receiveTimeout: dio.options.receiveTimeout! * 12, headers: headers),
+        cancelToken: cancelToken,
+        onReceiveProgress: progress,
+    );
+    return returnSuccessOrError(response);
   }
 
   // The following methods are for Firebase only

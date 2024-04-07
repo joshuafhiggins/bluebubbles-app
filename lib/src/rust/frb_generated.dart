@@ -78,16 +78,16 @@ abstract class RustLibApi extends BaseApi {
       {required List<int> data, required DartHwExtra extra, dynamic hint});
 
   Future<void> configureMacos(
-      {required PushState state, required MacOsConfig config, dynamic hint});
+      {required ArcPushState state, required MacOsConfig config, dynamic hint});
 
   Stream<TransferProgress> downloadAttachment(
-      {required PushState state,
+      {required ArcPushState state,
       required DartAttachment attachment,
       required String path,
       dynamic hint});
 
   Stream<TransferProgress> downloadMmcs(
-      {required PushState state,
+      {required ArcPushState state,
       required DartMMCSFile attachment,
       required String path,
       dynamic hint});
@@ -96,46 +96,48 @@ abstract class RustLibApi extends BaseApi {
       {required String number, required String country, dynamic hint});
 
   Future<List<DartTrustedPhoneNumber>> get2FaSmsOpts(
-      {required PushState state, dynamic hint});
+      {required ArcPushState state, dynamic hint});
 
-  Future<List<String>> getHandles({required PushState state, dynamic hint});
+  Future<List<String>> getHandles({required ArcPushState state, dynamic hint});
 
-  Future<RegistrationPhase> getPhase({required PushState state, dynamic hint});
+  Future<RegistrationPhase> getPhase(
+      {required ArcPushState state, dynamic hint});
 
   Future<DartIMessage> newMsg(
-      {required PushState state,
+      {required ArcPushState state,
       required DartConversationData conversation,
       required String sender,
       required DartMessage message,
       dynamic hint});
 
-  Future<PushState> newPushState({required String dir, dynamic hint});
+  Future<ArcPushState> newPushState({required String dir, dynamic hint});
 
-  Future<DartRecievedMessage> ptrToDart({required String ptr, dynamic hint});
+  Future<DartIMessage> ptrToDart({required String ptr, dynamic hint});
 
-  Future<DartRecievedMessage?> recvWait(
-      {required PushState state, dynamic hint});
+  Future<DartIMessage?> recvWait({required ArcPushState state, dynamic hint});
 
   Future<DartSupportAlert?> registerIds(
-      {required PushState state, dynamic hint});
+      {required ArcPushState state, dynamic hint});
 
   Future<void> send(
-      {required PushState state, required DartIMessage msg, dynamic hint});
+      {required ArcPushState state, required DartIMessage msg, dynamic hint});
 
   Future<DartLoginState> send2FaSms(
-      {required PushState state, required int phoneId, dynamic hint});
+      {required ArcPushState state, required int phoneId, dynamic hint});
 
   Future<DartLoginState> send2FaToDevices(
-      {required PushState state, dynamic hint});
+      {required ArcPushState state, dynamic hint});
+
+  Future<ArcPushState> serviceFromPtr({required String ptr, dynamic hint});
 
   Future<DartLoginState> tryAuth(
-      {required PushState state,
+      {required ArcPushState state,
       required String username,
       required String password,
       dynamic hint});
 
   Stream<TransferProgress> uploadAttachment(
-      {required PushState state,
+      {required ArcPushState state,
       required String path,
       required String mime,
       required String uti,
@@ -143,22 +145,30 @@ abstract class RustLibApi extends BaseApi {
       dynamic hint});
 
   Stream<MMCSTransferProgress> uploadMmcs(
-      {required PushState state, required String path, dynamic hint});
+      {required ArcPushState state, required String path, dynamic hint});
 
   Future<List<String>> validateTargets(
-      {required PushState state,
+      {required ArcPushState state,
       required List<String> targets,
       required String sender,
       dynamic hint});
 
   Future<DartLoginState> verify2Fa(
-      {required PushState state, required String code, dynamic hint});
+      {required ArcPushState state, required String code, dynamic hint});
 
   Future<DartLoginState> verify2FaSms(
-      {required PushState state,
+      {required ArcPushState state,
       required VerifyBody body,
       required String code,
       dynamic hint});
+
+  RustArcIncrementStrongCountFnType
+      get rust_arc_increment_strong_count_ArcPushState;
+
+  RustArcDecrementStrongCountFnType
+      get rust_arc_decrement_strong_count_ArcPushState;
+
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ArcPushStatePtr;
 
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_MacOsConfig;
@@ -167,14 +177,6 @@ abstract class RustLibApi extends BaseApi {
       get rust_arc_decrement_strong_count_MacOsConfig;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MacOsConfigPtr;
-
-  RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_PushState;
-
-  RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_PushState;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_PushStatePtr;
 
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_VerifyBody;
@@ -201,7 +203,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_attachment(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 25, port: port_);
+            funcId: 26, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_usize,
@@ -227,7 +229,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(saved, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 24, port: port_);
+            funcId: 25, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_attachment,
@@ -253,7 +255,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_attachment(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 23, port: port_);
+            funcId: 24, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -279,7 +281,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_message_parts(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 26, port: port_);
+            funcId: 27, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -306,7 +308,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_list_prim_u_8_loose(data, serializer);
         sse_encode_box_autoadd_dart_hw_extra(extra, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
+            funcId: 5, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData:
@@ -327,16 +329,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> configureMacos(
-      {required PushState state, required MacOsConfig config, dynamic hint}) {
+      {required ArcPushState state,
+      required MacOsConfig config,
+      dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
             config, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
+            funcId: 4, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -356,19 +360,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Stream<TransferProgress> downloadAttachment(
-      {required PushState state,
+      {required ArcPushState state,
       required DartAttachment attachment,
       required String path,
       dynamic hint}) {
     return handler.executeStream(StreamTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_box_autoadd_dart_attachment(attachment, serializer);
         sse_encode_String(path, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 13, port: port_);
+            funcId: 14, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_transfer_progress,
@@ -388,19 +392,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Stream<TransferProgress> downloadMmcs(
-      {required PushState state,
+      {required ArcPushState state,
       required DartMMCSFile attachment,
       required String path,
       dynamic hint}) {
     return handler.executeStream(StreamTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_box_autoadd_dart_mmcs_file(attachment, serializer);
         sse_encode_String(path, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 14, port: port_);
+            funcId: 15, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_transfer_progress,
@@ -427,7 +431,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(number, serializer);
         sse_encode_String(country, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
+            funcId: 7, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -447,14 +451,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<List<DartTrustedPhoneNumber>> get2FaSmsOpts(
-      {required PushState state, dynamic hint}) {
+      {required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 20, port: port_);
+            funcId: 21, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_list_dart_trusted_phone_number,
@@ -473,14 +477,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<String>> getHandles({required PushState state, dynamic hint}) {
+  Future<List<String>> getHandles({required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 9, port: port_);
+            funcId: 10, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_list_String,
@@ -499,14 +503,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<RegistrationPhase> getPhase({required PushState state, dynamic hint}) {
+  Future<RegistrationPhase> getPhase(
+      {required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 12, port: port_);
+            funcId: 13, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_registration_phase,
@@ -526,7 +531,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartIMessage> newMsg(
-      {required PushState state,
+      {required ArcPushState state,
       required DartConversationData conversation,
       required String sender,
       required DartMessage message,
@@ -534,13 +539,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_box_autoadd_dart_conversation_data(conversation, serializer);
         sse_encode_String(sender, serializer);
         sse_encode_box_autoadd_dart_message(message, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 10, port: port_);
+            funcId: 11, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_i_message,
@@ -559,7 +564,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<PushState> newPushState({required String dir, dynamic hint}) {
+  Future<ArcPushState> newPushState({required String dir, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -569,7 +574,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       },
       codec: SseCodec(
         decodeSuccessData:
-            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState,
+            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState,
         decodeErrorData: sse_decode_AnyhowException,
       ),
       constMeta: kNewPushStateConstMeta,
@@ -585,16 +590,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<DartRecievedMessage> ptrToDart({required String ptr, dynamic hint}) {
+  Future<DartIMessage> ptrToDart({required String ptr, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(ptr, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
+            funcId: 6, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_dart_recieved_message,
+        decodeSuccessData: sse_decode_dart_i_message,
         decodeErrorData: null,
       ),
       constMeta: kPtrToDartConstMeta,
@@ -610,18 +615,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<DartRecievedMessage?> recvWait(
-      {required PushState state, dynamic hint}) {
+  Future<DartIMessage?> recvWait({required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 7, port: port_);
+            funcId: 8, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_opt_box_autoadd_dart_recieved_message,
+        decodeSuccessData: sse_decode_opt_box_autoadd_dart_i_message,
         decodeErrorData: null,
       ),
       constMeta: kRecvWaitConstMeta,
@@ -638,14 +642,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartSupportAlert?> registerIds(
-      {required PushState state, dynamic hint}) {
+      {required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
+            funcId: 3, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_opt_box_autoadd_dart_support_alert,
@@ -665,15 +669,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> send(
-      {required PushState state, required DartIMessage msg, dynamic hint}) {
+      {required ArcPushState state, required DartIMessage msg, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_box_autoadd_dart_i_message(msg, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 8, port: port_);
+            funcId: 9, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -693,15 +697,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartLoginState> send2FaSms(
-      {required PushState state, required int phoneId, dynamic hint}) {
+      {required ArcPushState state, required int phoneId, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_u_32(phoneId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 21, port: port_);
+            funcId: 22, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_login_state,
@@ -721,14 +725,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartLoginState> send2FaToDevices(
-      {required PushState state, dynamic hint}) {
+      {required ArcPushState state, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 18, port: port_);
+            funcId: 19, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_login_state,
@@ -747,20 +751,46 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<ArcPushState> serviceFromPtr({required String ptr, dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(ptr, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 2, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData:
+            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState,
+        decodeErrorData: null,
+      ),
+      constMeta: kServiceFromPtrConstMeta,
+      argValues: [ptr],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kServiceFromPtrConstMeta => const TaskConstMeta(
+        debugName: "service_from_ptr",
+        argNames: ["ptr"],
+      );
+
+  @override
   Future<DartLoginState> tryAuth(
-      {required PushState state,
+      {required ArcPushState state,
       required String username,
       required String password,
       dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_String(username, serializer);
         sse_encode_String(password, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 17, port: port_);
+            funcId: 18, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_login_state,
@@ -780,7 +810,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Stream<TransferProgress> uploadAttachment(
-      {required PushState state,
+      {required ArcPushState state,
       required String path,
       required String mime,
       required String uti,
@@ -789,14 +819,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return handler.executeStream(StreamTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_String(path, serializer);
         sse_encode_String(mime, serializer);
         sse_encode_String(uti, serializer);
         sse_encode_String(name, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 16, port: port_);
+            funcId: 17, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_transfer_progress,
@@ -816,15 +846,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Stream<MMCSTransferProgress> uploadMmcs(
-      {required PushState state, required String path, dynamic hint}) {
+      {required ArcPushState state, required String path, dynamic hint}) {
     return handler.executeStream(StreamTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_String(path, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 15, port: port_);
+            funcId: 16, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_mmcs_transfer_progress,
@@ -844,19 +874,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<List<String>> validateTargets(
-      {required PushState state,
+      {required ArcPushState state,
       required List<String> targets,
       required String sender,
       dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_list_String(targets, serializer);
         sse_encode_String(sender, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 11, port: port_);
+            funcId: 12, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_list_String,
@@ -876,15 +906,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartLoginState> verify2Fa(
-      {required PushState state, required String code, dynamic hint}) {
+      {required ArcPushState state, required String code, dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_String(code, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 19, port: port_);
+            funcId: 20, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_login_state,
@@ -904,20 +934,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<DartLoginState> verify2FaSms(
-      {required PushState state,
+      {required ArcPushState state,
       required VerifyBody body,
       required String code,
       dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
             state, serializer);
         sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockVerifyBody(
             body, serializer);
         sse_encode_String(code, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 22, port: port_);
+            funcId: 23, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_login_state,
@@ -936,20 +966,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   RustArcIncrementStrongCountFnType
+      get rust_arc_increment_strong_count_ArcPushState => wire
+          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState;
+
+  RustArcDecrementStrongCountFnType
+      get rust_arc_decrement_strong_count_ArcPushState => wire
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState;
+
+  RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_MacOsConfig => wire
           .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig;
 
   RustArcDecrementStrongCountFnType
       get rust_arc_decrement_strong_count_MacOsConfig => wire
           .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig;
-
-  RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_PushState => wire
-          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState;
-
-  RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_PushState => wire
-          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState;
 
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_VerifyBody => wire
@@ -966,19 +996,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ArcPushState
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ArcPushState.dcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
   MacOsConfig
       dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
           dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return MacOsConfig.dcoDecode(raw as List<dynamic>);
-  }
-
-  @protected
-  PushState
-      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return PushState.dcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -990,11 +1020,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  PushState
-      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+  ArcPushState
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
           dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return PushState.dcoDecode(raw as List<dynamic>);
+    return ArcPushState.dcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  ArcPushState
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ArcPushState.dcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -1003,14 +1041,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return MacOsConfig.dcoDecode(raw as List<dynamic>);
-  }
-
-  @protected
-  PushState
-      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return PushState.dcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -1112,13 +1142,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   DartReactMessage dco_decode_box_autoadd_dart_react_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_dart_react_message(raw);
-  }
-
-  @protected
-  DartRecievedMessage dco_decode_box_autoadd_dart_recieved_message(
-      dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_dart_recieved_message(raw);
   }
 
   @protected
@@ -1443,19 +1466,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  DartRecievedMessage dco_decode_dart_recieved_message(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    switch (raw[0]) {
-      case 0:
-        return DartRecievedMessage_Message(
-          msg: dco_decode_box_autoadd_dart_i_message(raw[1]),
-        );
-      default:
-        throw Exception("unreachable");
-    }
-  }
-
-  @protected
   DartRenameMessage dco_decode_dart_rename_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -1600,18 +1610,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  DartMMCSFile? dco_decode_opt_box_autoadd_dart_mmcs_file(dynamic raw) {
+  DartIMessage? dco_decode_opt_box_autoadd_dart_i_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_box_autoadd_dart_mmcs_file(raw);
+    return raw == null ? null : dco_decode_box_autoadd_dart_i_message(raw);
   }
 
   @protected
-  DartRecievedMessage? dco_decode_opt_box_autoadd_dart_recieved_message(
-      dynamic raw) {
+  DartMMCSFile? dco_decode_opt_box_autoadd_dart_mmcs_file(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null
-        ? null
-        : dco_decode_box_autoadd_dart_recieved_message(raw);
+    return raw == null ? null : dco_decode_box_autoadd_dart_mmcs_file(raw);
   }
 
   @protected
@@ -1690,20 +1697,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ArcPushState
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return ArcPushState.sseDecode(
+        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+  }
+
+  @protected
   MacOsConfig
       sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
           SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return MacOsConfig.sseDecode(
-        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
-  }
-
-  @protected
-  PushState
-      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return PushState.sseDecode(
         sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
   }
 
@@ -1717,11 +1724,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  PushState
-      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
+  ArcPushState
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
           SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return PushState.sseDecode(
+    return ArcPushState.sseDecode(
+        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  ArcPushState
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return ArcPushState.sseDecode(
         sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
   }
 
@@ -1731,15 +1747,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return MacOsConfig.sseDecode(
-        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
-  }
-
-  @protected
-  PushState
-      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return PushState.sseDecode(
         sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
   }
 
@@ -1855,13 +1862,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_dart_react_message(deserializer));
-  }
-
-  @protected
-  DartRecievedMessage sse_decode_box_autoadd_dart_recieved_message(
-      SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_dart_recieved_message(deserializer));
   }
 
   @protected
@@ -2185,21 +2185,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  DartRecievedMessage sse_decode_dart_recieved_message(
-      SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-
-    var tag_ = sse_decode_i_32(deserializer);
-    switch (tag_) {
-      case 0:
-        var var_msg = sse_decode_box_autoadd_dart_i_message(deserializer);
-        return DartRecievedMessage_Message(msg: var_msg);
-      default:
-        throw UnimplementedError('');
-    }
-  }
-
-  @protected
   DartRenameMessage sse_decode_dart_rename_message(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -2368,24 +2353,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  DartMMCSFile? sse_decode_opt_box_autoadd_dart_mmcs_file(
+  DartIMessage? sse_decode_opt_box_autoadd_dart_i_message(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_box_autoadd_dart_mmcs_file(deserializer));
+      return (sse_decode_box_autoadd_dart_i_message(deserializer));
     } else {
       return null;
     }
   }
 
   @protected
-  DartRecievedMessage? sse_decode_opt_box_autoadd_dart_recieved_message(
+  DartMMCSFile? sse_decode_opt_box_autoadd_dart_mmcs_file(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_box_autoadd_dart_recieved_message(deserializer));
+      return (sse_decode_box_autoadd_dart_mmcs_file(deserializer));
     } else {
       return null;
     }
@@ -2483,16 +2468,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void
-      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
-          MacOsConfig self, SseSerializer serializer) {
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          ArcPushState self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(self.sseEncode(move: true), serializer);
   }
 
   @protected
   void
-      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          PushState self, SseSerializer serializer) {
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
+          MacOsConfig self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(self.sseEncode(move: true), serializer);
   }
@@ -2507,24 +2492,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void
-      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          PushState self, SseSerializer serializer) {
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          ArcPushState self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(self.sseEncode(move: false), serializer);
   }
 
   @protected
   void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
-          MacOsConfig self, SseSerializer serializer) {
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+          ArcPushState self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(self.sseEncode(move: null), serializer);
   }
 
   @protected
   void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockPushState(
-          PushState self, SseSerializer serializer) {
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockMacOSConfig(
+          MacOsConfig self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(self.sseEncode(move: null), serializer);
   }
@@ -2638,13 +2623,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       DartReactMessage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_dart_react_message(self, serializer);
-  }
-
-  @protected
-  void sse_encode_box_autoadd_dart_recieved_message(
-      DartRecievedMessage self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_dart_recieved_message(self, serializer);
   }
 
   @protected
@@ -2901,17 +2879,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_dart_recieved_message(
-      DartRecievedMessage self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    switch (self) {
-      case DartRecievedMessage_Message(msg: final msg):
-        sse_encode_i_32(0, serializer);
-        sse_encode_box_autoadd_dart_i_message(msg, serializer);
-    }
-  }
-
-  @protected
   void sse_encode_dart_rename_message(
       DartRenameMessage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3058,6 +3025,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_dart_i_message(
+      DartIMessage? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_dart_i_message(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_dart_mmcs_file(
       DartMMCSFile? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3065,17 +3043,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_dart_mmcs_file(self, serializer);
-    }
-  }
-
-  @protected
-  void sse_encode_opt_box_autoadd_dart_recieved_message(
-      DartRecievedMessage? self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-
-    sse_encode_bool(self != null, serializer);
-    if (self != null) {
-      sse_encode_box_autoadd_dart_recieved_message(self, serializer);
     }
   }
 

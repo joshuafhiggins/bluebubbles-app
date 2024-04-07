@@ -27,6 +27,7 @@ class MethodChannelService extends GetxService {
     background = headless;
     channel = const MethodChannel('com.bluebubbles.messaging');
     channel.setMethodCallHandler(_callHandler);
+    channel.invokeMethod("ready");
     if (!kIsWeb && !kIsDesktop && !headless) {
       try {
         if (ss.settings.colorsFromMedia.value) {
@@ -44,8 +45,10 @@ class MethodChannelService extends GetxService {
     final Map<String, dynamic>? arguments = call.arguments is String ? jsonDecode(call.arguments) : call.arguments?.cast<String, Object>();
     switch (call.method) {
       case "APNMsg":
-        String pointer = call.arguments.toString();
+        String pointer = call.arguments["pointer"];
+        print("got message $pointer");
         await pushService.recievedMsgPointer(pointer);
+        print("finish message $pointer");
         return true;
       case "NewServerUrl":
         if (arguments == null) return false;

@@ -53,6 +53,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    ndkVersion "26.2.11394342"
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -143,13 +145,6 @@ configurations.all {
     }
 }
 
-// that is added by objectbox_flutter_libs for debug builds.
-configurations {
-    debugImplementation {
-        exclude group: 'io.objectbox', module: 'objectbox-android'
-    }
-}
-
 dependencies {
     // Android native functions
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -180,8 +175,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // uniffi JNA dependency
-    implementation "net.java.dev.jna:jna:5.7.0@aar"
-
-    debugImplementation "io.objectbox:objectbox-android-objectbrowser:3.7.0"
+    implementation "net.java.dev.jna:jna:5.12.0@aar"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0"
 
 }

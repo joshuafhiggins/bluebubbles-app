@@ -459,6 +459,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                         SettingsSection(
                           backgroundColor: tileColor,
                           children: [
+                            if (!usingRustPush)
                             Obx(() => SettingsTile(
                               backgroundColor: tileColor,
                               title: "Private API Features",

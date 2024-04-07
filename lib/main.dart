@@ -94,7 +94,6 @@ Future<Null> initApp(bool bubble, List<String> arguments) async {
   ls.isUiThread = true;
   await ss.init();
   await fs.init();
-  backend.init();
   await Logger.init();
   Logger.startup.value = true;
   Logger.info('Startup Logs');
@@ -152,6 +151,7 @@ Future<Null> initApp(bool bubble, List<String> arguments) async {
   }
   await ts.init();
   await mcs.init();
+  backend.init();
 
   /* ----- RANDOM STUFF INITIALIZATION ----- */
   HttpOverrides.global = BadCertOverride();
