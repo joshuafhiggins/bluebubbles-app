@@ -67,6 +67,10 @@ class RustPushBBUtils {
 class RustPushBackend implements BackendService {
   Future<String> getDefaultHandle() async {
     var myHandles = await api.getHandles(state: pushService.state);
+    var setHandle = Settings.getSettings().defaultHandle.value;
+    if (myHandles.contains(setHandle)) {
+      return setHandle;
+    }
     return myHandles[0];
   }
 
@@ -188,6 +192,35 @@ class RustPushBackend implements BackendService {
     );
     await api.send(state: pushService.state, msg: msg);
     return true;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getAccountInfo() async {
+    var handles = await api.getHandles(state: pushService.state);
+    return {
+      "account_name": Settings.getSettings().userName.value,
+      "apple_id": Settings.getSettings().iCloudAccount.value,
+      "login_status_message": "Connected", // TODO
+      "vetted_aliases": handles.map((e) => {
+        "Alias": e.replaceFirst("tel:", "").replaceFirst("mailto:", "")
+      }).toList(),
+      "active_alias": (await getDefaultHandle()).replaceFirst("tel:", "").replaceFirst("mailto:", "")
+    };
+  }
+
+  @override
+  Future<void> setDefaultHandle(String defaultHandle) async {
+    var ss = Settings.getSettings();
+    ss.defaultHandle.value = await RustPushBBUtils.formatAndAddPrefix(defaultHandle);
+    ss.save();
+  }
+
+  @override
+  Future<Map<String, dynamic>> getAccountContact() async {
+    return {
+      "name": Settings.getSettings().userName.value,
+      "avatar": null,
+    };
   }
 
   @override

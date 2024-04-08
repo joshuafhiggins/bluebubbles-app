@@ -103,6 +103,11 @@ abstract class RustLibApi extends BaseApi {
   Future<RegistrationPhase> getPhase(
       {required ArcPushState state, dynamic hint});
 
+  Future<DartRegisterState> getRegstate(
+      {required ArcPushState state, dynamic hint});
+
+  Future<String> getUserName({required ArcPushState state, dynamic hint});
+
   Future<DartIMessage> newMsg(
       {required ArcPushState state,
       required DartConversationData conversation,
@@ -203,7 +208,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_attachment(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 26, port: port_);
+            funcId: 28, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_usize,
@@ -229,7 +234,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(saved, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 25, port: port_);
+            funcId: 27, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_dart_attachment,
@@ -255,7 +260,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_attachment(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 24, port: port_);
+            funcId: 26, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -281,7 +286,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_dart_message_parts(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 27, port: port_);
+            funcId: 29, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -526,6 +531,59 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kGetPhaseConstMeta => const TaskConstMeta(
         debugName: "get_phase",
+        argNames: ["state"],
+      );
+
+  @override
+  Future<DartRegisterState> getRegstate(
+      {required ArcPushState state, dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+            state, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 25, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_dart_register_state,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kGetRegstateConstMeta,
+      argValues: [state],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kGetRegstateConstMeta => const TaskConstMeta(
+        debugName: "get_regstate",
+        argNames: ["state"],
+      );
+
+  @override
+  Future<String> getUserName({required ArcPushState state, dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockArcPushState(
+            state, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 24, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kGetUserNameConstMeta,
+      argValues: [state],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kGetUserNameConstMeta => const TaskConstMeta(
+        debugName: "get_user_name",
         argNames: ["state"],
       );
 
@@ -1466,6 +1524,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DartRegisterState dco_decode_dart_register_state(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return DartRegisterState_Registered();
+      case 1:
+        return DartRegisterState_Registering();
+      case 2:
+        return DartRegisterState_Failed(
+          retryWait: dco_decode_u_64(raw[1]),
+          error: dco_decode_String(raw[2]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
   DartRenameMessage dco_decode_dart_rename_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -2185,6 +2261,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DartRegisterState sse_decode_dart_register_state(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        return DartRegisterState_Registered();
+      case 1:
+        return DartRegisterState_Registering();
+      case 2:
+        var var_retryWait = sse_decode_u_64(deserializer);
+        var var_error = sse_decode_String(deserializer);
+        return DartRegisterState_Failed(
+            retryWait: var_retryWait, error: var_error);
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
   DartRenameMessage sse_decode_dart_rename_message(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -2876,6 +2973,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_dart_reaction(DartReaction self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_dart_register_state(
+      DartRegisterState self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case DartRegisterState_Registered():
+        sse_encode_i_32(0, serializer);
+      case DartRegisterState_Registering():
+        sse_encode_i_32(1, serializer);
+      case DartRegisterState_Failed(
+          retryWait: final retryWait,
+          error: final error
+        ):
+        sse_encode_i_32(2, serializer);
+        sse_encode_u_64(retryWait, serializer);
+        sse_encode_String(error, serializer);
+    }
   }
 
   @protected

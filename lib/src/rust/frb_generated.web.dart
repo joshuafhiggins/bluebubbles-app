@@ -185,6 +185,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DartReaction dco_decode_dart_reaction(dynamic raw);
 
   @protected
+  DartRegisterState dco_decode_dart_register_state(dynamic raw);
+
+  @protected
   DartRenameMessage dco_decode_dart_rename_message(dynamic raw);
 
   @protected
@@ -446,6 +449,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DartReaction sse_decode_dart_reaction(SseDeserializer deserializer);
+
+  @protected
+  DartRegisterState sse_decode_dart_register_state(
+      SseDeserializer deserializer);
 
   @protected
   DartRenameMessage sse_decode_dart_rename_message(
@@ -727,6 +734,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_dart_reaction(DartReaction self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_dart_register_state(
+      DartRegisterState self, SseSerializer serializer);
 
   @protected
   void sse_encode_dart_rename_message(

@@ -140,6 +140,13 @@ Future<DartLoginState> verify2FaSms(
     RustLib.instance.api
         .verify2FaSms(state: state, body: body, code: code, hint: hint);
 
+Future<String> getUserName({required ArcPushState state, dynamic hint}) =>
+    RustLib.instance.api.getUserName(state: state, hint: hint);
+
+Future<DartRegisterState> getRegstate(
+        {required ArcPushState state, dynamic hint}) =>
+    RustLib.instance.api.getRegstate(state: state, hint: hint);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::rust_async::RwLock<Arc < PushState >>>
 @sealed
 class ArcPushState extends RustOpaque {
@@ -657,6 +664,16 @@ enum DartReaction {
   laugh,
   emphsize,
   question,
+}
+
+@freezed
+sealed class DartRegisterState with _$DartRegisterState {
+  const factory DartRegisterState.registered() = DartRegisterState_Registered;
+  const factory DartRegisterState.registering() = DartRegisterState_Registering;
+  const factory DartRegisterState.failed({
+    required int retryWait,
+    required String error,
+  }) = DartRegisterState_Failed;
 }
 
 class DartRenameMessage {

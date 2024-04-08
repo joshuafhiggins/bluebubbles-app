@@ -489,6 +489,82 @@ fn wire_get_phase_impl(
         },
     )
 }
+fn wire_get_regstate_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_regstate",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_state = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::rust_async::RwLock<Arc<PushState>>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse(
+                    (move || async move {
+                        let api_state = api_state.rust_auto_opaque_decode_ref();
+                        crate::api::api::get_regstate(&api_state).await
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire_get_user_name_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_user_name",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_state = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::rust_async::RwLock<Arc<PushState>>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse(
+                    (move || async move {
+                        let api_state = api_state.rust_auto_opaque_decode_ref();
+                        crate::api::api::get_user_name(&api_state).await
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire_new_msg_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -1525,6 +1601,32 @@ impl SseDecode for crate::api::api::DartReaction {
     }
 }
 
+impl SseDecode for crate::api::api::DartRegisterState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut tag_ = <i32>::sse_decode(deserializer);
+        match tag_ {
+            0 => {
+                return crate::api::api::DartRegisterState::Registered;
+            }
+            1 => {
+                return crate::api::api::DartRegisterState::Registering;
+            }
+            2 => {
+                let mut var_retryWait = <u64>::sse_decode(deserializer);
+                let mut var_error = <String>::sse_decode(deserializer);
+                return crate::api::api::DartRegisterState::Failed {
+                    retry_wait: var_retryWait,
+                    error: var_error,
+                };
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+
 impl SseDecode for crate::api::api::DartRenameMessage {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1836,12 +1938,13 @@ fn pde_ffi_dispatcher_primary_impl(
     rust_vec_len: i32,
     data_len: i32,
 ) {
+    println!("here {func_id}");
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        26 => wire_DartAttachment_get_size_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire_DartAttachment_restore_impl(port, ptr, rust_vec_len, data_len),
-        24 => wire_DartAttachment_save_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire_DartMessageParts_as_plain_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire_DartAttachment_get_size_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire_DartAttachment_restore_impl(port, ptr, rust_vec_len, data_len),
+        26 => wire_DartAttachment_save_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire_DartMessageParts_as_plain_impl(port, ptr, rust_vec_len, data_len),
         5 => wire_config_from_validation_data_impl(port, ptr, rust_vec_len, data_len),
         4 => wire_configure_macos_impl(port, ptr, rust_vec_len, data_len),
         14 => wire_download_attachment_impl(port, ptr, rust_vec_len, data_len),
@@ -1850,6 +1953,8 @@ fn pde_ffi_dispatcher_primary_impl(
         21 => wire_get_2fa_sms_opts_impl(port, ptr, rust_vec_len, data_len),
         10 => wire_get_handles_impl(port, ptr, rust_vec_len, data_len),
         13 => wire_get_phase_impl(port, ptr, rust_vec_len, data_len),
+        25 => wire_get_regstate_impl(port, ptr, rust_vec_len, data_len),
+        24 => wire_get_user_name_impl(port, ptr, rust_vec_len, data_len),
         11 => wire_new_msg_impl(port, ptr, rust_vec_len, data_len),
         1 => wire_new_push_state_impl(port, ptr, rust_vec_len, data_len),
         6 => wire_ptr_to_dart_impl(port, ptr, rust_vec_len, data_len),
@@ -2392,6 +2497,32 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::api::DartReaction>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::api::DartRegisterState {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            crate::api::api::DartRegisterState::Registered => [0.into_dart()].into_dart(),
+            crate::api::api::DartRegisterState::Registering => [1.into_dart()].into_dart(),
+            crate::api::api::DartRegisterState::Failed { retry_wait, error } => [
+                2.into_dart(),
+                retry_wait.into_into_dart().into_dart(),
+                error.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::api::DartRegisterState
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::api::DartRegisterState>
+    for crate::api::api::DartRegisterState
+{
+    fn into_into_dart(self) -> crate::api::api::DartRegisterState {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::api::DartRenameMessage {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [self.new_name.into_into_dart().into_dart()].into_dart()
@@ -2890,6 +3021,25 @@ impl SseEncode for crate::api::api::DartReaction {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::api::api::DartRegisterState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        match self {
+            crate::api::api::DartRegisterState::Registered => {
+                <i32>::sse_encode(0, serializer);
+            }
+            crate::api::api::DartRegisterState::Registering => {
+                <i32>::sse_encode(1, serializer);
+            }
+            crate::api::api::DartRegisterState::Failed { retry_wait, error } => {
+                <i32>::sse_encode(2, serializer);
+                <u64>::sse_encode(retry_wait, serializer);
+                <String>::sse_encode(error, serializer);
+            }
+        }
     }
 }
 
