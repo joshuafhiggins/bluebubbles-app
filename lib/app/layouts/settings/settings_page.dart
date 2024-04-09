@@ -4,7 +4,9 @@ import 'package:bluebubbles/app/layouts/settings/pages/advanced/tasker_panel.dar
 import 'package:bluebubbles/app/layouts/settings/pages/profile/profile_panel.dart';
 import 'package:bluebubbles/app/layouts/settings/pages/scheduling/message_reminders_panel.dart';
 import 'package:bluebubbles/app/layouts/settings/pages/server/backup_restore_panel.dart';
+import 'package:bluebubbles/app/layouts/settings/pages/system/device_panel.dart';
 import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/settings/pages/misc/about_panel.dart';
@@ -34,7 +36,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:universal_io/io.dart';
+import 'package:bluebubbles/src/rust/api/api.dart' as api;
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({
@@ -52,6 +56,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
   final RxBool uploadingContacts = false.obs;
   final RxnDouble progress = RxnDouble();
   final RxnInt totalSize = RxnInt();
+  api.DartDeviceInfo? deviceInfo;
 
   @override
   void initState() {
@@ -73,6 +78,12 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
         );
       });
     }
+
+    api.getDeviceInfoState(state: pushService.state).then((value) {
+      setState(() {
+        deviceInfo = value;
+      });
+    });
   }
 
   @override
@@ -137,6 +148,26 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                 ),
                                 trailing: nextIcon,
                               ),
+                              Skeletonizer(
+                                enabled: deviceInfo == null,
+                                child: SettingsTile(
+                                  backgroundColor: tileColor,
+                                  title: deviceInfo == null ? null : RustPushBBUtils.modelToUser(deviceInfo!.name),
+                                  subtitle: deviceInfo?.serial,
+                                  onTap: () {
+                                    ns.pushAndRemoveSettingsUntil(
+                                      context,
+                                      DevicePanel(),
+                                          (route) => route.isFirst,
+                                    );
+                                  },
+                                  trailing: nextIcon,
+                                  leading: const SettingsLeadingIcon(
+                                    iosIcon: CupertinoIcons.device_laptop,
+                                    materialIcon: Icons.laptop,
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         if (!kIsWeb && backend.getRemoteService() != null)
@@ -731,6 +762,9 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                           TextButton(
                                             child: Text("Yes", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
                                             onPressed: () async {
+                                              if (usingRustPush) {
+                                                await pushService.reset();
+                                              }
                                               fs.deleteDB();
                                               socket.forgetConnection();
                                               ss.settings = Settings();

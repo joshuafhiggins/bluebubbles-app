@@ -87,6 +87,10 @@ class APNService : Service() {
         scope.launch {
             while (true) {
                 val recievedMsg = pushState.recvWait()
+                if (recievedMsg == ULong.MAX_VALUE) {
+                    ready = false;
+                    break
+                }
                 if (recievedMsg != 0UL) {
                     recievedMsg(recievedMsg)
                 }

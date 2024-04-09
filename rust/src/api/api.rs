@@ -10,7 +10,7 @@ use phonenumber::country::Id::{self, VE};
 pub use rustpush::{APNSState, APNSConnection, IDSAppleUser, PushError, Message, IDSUser, IMClient, IMessage, ConversationData, register};
 
 use serde::{Serialize, Deserialize};
-use tokio::{runtime::Runtime, sync::RwLock};
+use tokio::{runtime::Runtime, select, sync::{oneshot::{self, Sender}, Mutex, RwLock}};
 use rustpush::{init_logger, Attachment, BalloonBody, MMCSFile, MessagePart, MessageParts, OSConfig, RegisterState};
 pub use rustpush::{MacOSConfig, HardwareConfig};
 use uniffi::{deps::log::info, HandleAlloc};
@@ -18,6 +18,7 @@ use std::io::Seek;
 use async_recursion::async_recursion;
 
 use crate::{frb_generated::{RustOpaque, StreamSink}, runtime};
+use bincode::Options;
 
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -40,7 +41,8 @@ pub struct InnerPushState {
     pub client: Option<IMClient>,
     pub conf_dir: PathBuf,
     pub os_config: Option<Arc<MacOSConfig>>,
-    pub account: Option<AppleAccount>
+    pub account: Option<AppleAccount>,
+    pub cancel_poll: Mutex<Option<Sender<()>>>
 }
 
 pub struct PushState (pub RwLock<InnerPushState>);
@@ -57,6 +59,7 @@ pub async fn new_push_state(dir: String) -> anyhow::Result<Arc<PushState>> {
         conf_dir: PathBuf::from_str(&dir).unwrap(),
         os_config: None,
         account: None,
+        cancel_poll: Mutex::new(None)
     }));
     if PathBuf::from_str(&dir).unwrap().join("config.plist").exists() {
         restore(&state).await?;
@@ -82,6 +85,13 @@ fn plist_to_buf<T: serde::Serialize>(value: &T) -> Result<Vec<u8>, plist::Error>
 
 fn plist_to_string<T: serde::Serialize>(value: &T) -> Result<String, plist::Error> {
     plist_to_buf(value).map(|val| String::from_utf8(val).unwrap())
+}
+
+fn plist_to_bin<T: serde::Serialize>(value: &T) -> Result<Vec<u8>, plist::Error> {
+    let mut buf: Vec<u8> = Vec::new();
+    let writer = Cursor::new(&mut buf);
+    plist::to_writer_binary(writer, &value)?;
+    Ok(buf)
 }
 
 async fn restore(curr_state: &PushState) -> anyhow::Result<()> {
@@ -201,6 +211,28 @@ pub async fn config_from_validation_data(data: Vec<u8>, extra: DartHwExtra) -> a
         aoskit_version: extra.aoskit_version,
     })
 }
+
+pub struct DartDeviceInfo {
+    pub name: String,
+    pub serial: String,
+    pub os_version: String,
+    pub encoded_data: Vec<u8>,
+}
+
+pub async fn get_device_info_state(state: &Arc<PushState>) -> anyhow::Result<DartDeviceInfo> {
+    let locked = state.0.read().await;
+    get_device_info(locked.os_config.as_ref().unwrap()).await
+}
+
+pub async fn get_device_info(config: &MacOSConfig) -> anyhow::Result<DartDeviceInfo> {
+    Ok(DartDeviceInfo {
+        name: config.inner.product_name.clone(),
+        serial: config.inner.platform_serial_number.clone(),
+        os_version: config.version.clone(),
+        encoded_data: bincode::DefaultOptions::new().serialize(config).unwrap()
+    })
+}
+
 
 pub fn ptr_to_dart(ptr: String) -> DartIMessage {
     let pointer: u64 = ptr.parse().unwrap();
@@ -459,13 +491,27 @@ impl DartIMessage {
     }
 }
 
-pub async fn recv_wait(state: &Arc<PushState>) -> Option<DartIMessage> {
+pub enum PollResult {
+    Stop,
+    Cont(Option<DartIMessage>),
+}
+
+pub async fn recv_wait(state: &Arc<PushState>) -> PollResult {
     if !matches!(state.get_phase().await, RegistrationPhase::Registered) {
         panic!("Wrong phase! (recv_wait)")
     }
-    state.0.read().await.client.as_ref().unwrap().recieve_wait().await.map(|msg| {
-        unsafe { std::mem::transmute(msg) }
-    })
+    let (send, recv) = oneshot::channel();
+    let recv_path = state.0.read().await;
+    *recv_path.cancel_poll.lock().await = Some(send);
+    select! {
+        msg = recv_path.client.as_ref().unwrap().recieve_wait() => {
+            *recv_path.cancel_poll.lock().await = None;
+            PollResult::Cont(unsafe { std::mem::transmute(msg) })
+        }
+        _cancel = recv => {
+            PollResult::Stop
+        }
+    }
 }
 
 pub async fn send(state: &Arc<PushState>, msg: DartIMessage) -> anyhow::Result<()> {
@@ -652,6 +698,27 @@ pub async fn verify_2fa_sms(state: &Arc<PushState>, body: VerifyBody, code: Stri
     let inner = state.0.read().await;
     let account = inner.account.as_ref().unwrap();
     Ok(unsafe { std::mem::transmute(account.verify_sms_2fa(code, body).await?) })
+}
+
+pub async fn reset_state(state: &Arc<PushState>) -> anyhow::Result<()> {
+    // tell any poll to stop
+    let inner = state.0.read().await;
+    if let Some(cancel) = inner.cancel_poll.lock().await.take() {
+        cancel.send(()).unwrap();
+    }
+    drop(inner);
+    let mut inner = state.0.write().await;
+    let conn_state = inner.conn.as_ref().unwrap().clone();
+    inner.client = None;
+    // try deregistering from iMessage, but if it fails we don't really care
+    let _ = register(inner.os_config.as_ref().unwrap().as_ref(), &mut [], &conn_state).await;
+    inner.conn = None;
+    inner.os_config = None;
+    inner.account = None;
+    inner.users = vec![];
+    let _ = std::fs::remove_file(inner.conf_dir.join("config.plist"));
+    let _ = std::fs::remove_file(inner.conf_dir.join("id_cache.plist"));
+    Ok(())
 }
 
 impl PushState {

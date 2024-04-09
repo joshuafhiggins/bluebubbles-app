@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use tokio::runtime::{Handle, Runtime};
 use uniffi::deps::log::info;
 
-use crate::{api::api::{get_phase, new_push_state, recv_wait, InnerPushState, PushState, RegistrationPhase}, frb_generated::FLUTTER_RUST_BRIDGE_HANDLER};
+use crate::{api::api::{get_phase, new_push_state, recv_wait, InnerPushState, PollResult, PushState, RegistrationPhase}, frb_generated::FLUTTER_RUST_BRIDGE_HANDLER};
 
 #[derive(uniffi::Object)] 
 pub struct NativePushState {
@@ -31,8 +31,10 @@ impl NativePushState {
     }
 
     pub async fn recv_wait(self: Arc<NativePushState>) -> u64 {
-        let Some(msg) = recv_wait(&self.state).await else {
-            return 0
+        let msg = match recv_wait(&self.state).await {
+            PollResult::Cont(Some(msg)) => msg,
+            PollResult::Cont(None) => return 0,
+            PollResult::Stop => return u64::MAX
         };
         let result = Box::into_raw(Box::new(msg)) as u64;
         info!("emitting pointer {result}");

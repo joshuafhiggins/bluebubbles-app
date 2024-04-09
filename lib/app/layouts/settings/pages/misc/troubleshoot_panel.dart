@@ -1,3 +1,4 @@
+import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/settings/widgets/settings_widgets.dart';
@@ -313,13 +314,13 @@ class _TroubleshootPanelState extends OptimizedState<TroubleshootPanel> {
                     );
                   }),
                 ]),
-              if (!kIsWeb)
+              if (!kIsWeb && backend.getRemoteService() != null)
                 SettingsHeader(
                     iosSubtitle: iosSubtitle,
                     materialSubtitle: materialSubtitle,
                     text: "Database Re-syncing"
                 ),
-              if (!kIsWeb)
+              if (!kIsWeb && backend.getRemoteService() != null)
                 SettingsSection(
                   backgroundColor: tileColor,
                   children: [
