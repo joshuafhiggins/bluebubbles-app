@@ -768,6 +768,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                               fs.deleteDB();
                                               socket.forgetConnection();
                                               ss.settings = Settings();
+                                              ss.settings.save();
                                               ss.fcmData = FCMData();
                                               await ss.prefs.clear();
                                               await ss.prefs.setString("selected-dark", "OLED Dark");
