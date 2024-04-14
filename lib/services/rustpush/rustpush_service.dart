@@ -249,9 +249,14 @@ class RustPushBackend implements BackendService {
 
   @override
   bool supportsSmsForwarding() {
-    // JJTech has already reversed this, but I don't have an iPhone so cannot test,
-    // so unsupported for now
-    return false;
+    return true;
+  }
+
+  api.DartMessageType getService(bool isSms) {
+    if (isSms) {
+      return const api.DartMessageType.sms(isPhone: false, usingNumber: "");
+    }
+    return const api.DartMessageType.iMessage();
   }
 
   @override
@@ -264,7 +269,8 @@ class RustPushBackend implements BackendService {
     var chat = Chat(
       guid: uuid.v4(),
       participants: formattedHandles,
-      usingHandle: handle
+      usingHandle: handle,
+      isRpSms: service == "SMS"
     );
     if (message != null) {
       var msg = await api.newMsg(
@@ -272,7 +278,9 @@ class RustPushBackend implements BackendService {
           conversation: chat.getConversationData(),
           message: api.DartMessage.message(api.DartNormalMessage(
               parts: api.DartMessageParts(
-                  field0: [api.DartIndexedMessagePart(field0: api.DartMessagePart.text(message))]))),
+                  field0: [api.DartIndexedMessagePart(field0: api.DartMessagePart.text(message))]),
+                  service: getService(chat.isRpSms)
+                  )),
           sender: handle);
       await api.send(state: pushService.state, msg: msg);
       msg.sentTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -329,6 +337,7 @@ class RustPushBackend implements BackendService {
           replyGuid: m.threadOriginatorGuid,
           replyPart: m.threadOriginatorGuid == null ? null : "$partIndex:0:0",
           effect: m.expressiveSendStyleId,
+          service: getService(chat.isRpSms),
         )));
     await api.send(state: pushService.state, msg: msg);
     msg.sentTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -376,7 +385,9 @@ class RustPushBackend implements BackendService {
       "vetted_aliases": handles.map((e) => {
         "Alias": e.replaceFirst("tel:", "").replaceFirst("mailto:", "")
       }).toList(),
-      "active_alias": (await getDefaultHandle()).replaceFirst("tel:", "").replaceFirst("mailto:", "")
+      "active_alias": (await getDefaultHandle()).replaceFirst("tel:", "").replaceFirst("mailto:", ""),
+      "sms_forwarding_capable": true,
+      "sms_forwarding_enabled": ss.settings.smsForwardingEnabled.value,
     };
   }
 
@@ -429,6 +440,7 @@ class RustPushBackend implements BackendService {
         replyGuid: m.threadOriginatorGuid,
         replyPart: m.threadOriginatorGuid == null ? null : "$partIndex:0:0",
         effect: m.expressiveSendStyleId,
+        service: getService(chat.isRpSms),
       )),
     );
     m.guid = msg.id;
@@ -446,6 +458,9 @@ class RustPushBackend implements BackendService {
       return true;
     }
     var chat = await Chat.findByRust(message.conversation!);
+    if (chat.isRpSms) {
+      return true; // no delivery recipts :)
+    }
     var msg = await api.newMsg(
       state: pushService.state,
       conversation: message.conversation!,
@@ -896,6 +911,14 @@ class RustPushService extends GetxService {
   }
 
   Future handleMsg(api.DartIMessage myMsg) async {
+    if (myMsg.message is api.DartMessage_EnableSmsActivation) {
+      var message = myMsg.message as api.DartMessage_EnableSmsActivation;
+      ss.settings.smsForwardingEnabled.value = message.field0;
+      return;
+    }
+    if (myMsg.message is api.DartMessage_SmsConfirmSent) {
+      return; // not much to do for now  
+    }
     if (myMsg.message is api.DartMessage_Delivered || myMsg.message is api.DartMessage_Read) {
       var myHandles = (await api.getHandles(state: pushService.state));
       if (myHandles.contains(myMsg.sender)) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -66,6 +67,9 @@ class _SendAnimationState
     }
     for (int i = 0; i < attachments.length; i++) {
       final file = attachments[i];
+      String data = await DefaultAssetBundle.of(context).loadString("assets/rustpush/uti-map.json");
+      final utiMap = jsonDecode(data);
+
       final message = Message(
         text: "",
         dateCreated: DateTime.now(),
@@ -74,7 +78,7 @@ class _SendAnimationState
           Attachment(
             isOutgoing: true,
             mimeType: mime(file.path),
-            uti: "public.jpg",
+            uti: utiMap[mime(file.path)] ?? "public.data",
             bytes: file.bytes,
             transferName: file.name,
             totalBytes: file.size,
