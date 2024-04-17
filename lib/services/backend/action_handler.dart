@@ -233,6 +233,7 @@ class ActionHandler extends GetxService {
     if (!ls.isAlive) {
       await MessageHelper.handleNotification(m, c);
     }
+    await m.forwardIfNessesary(c);
     await c.addMessage(m);
   }
 

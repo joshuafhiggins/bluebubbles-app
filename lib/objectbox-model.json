@@ -89,7 +89,7 @@
     },
     {
       "id": "3:9017250848141753702",
-      "lastPropertyId": "32:3790179132714024264",
+      "lastPropertyId": "33:7747554395546158964",
       "name": "Chat",
       "properties": [
         {
@@ -224,6 +224,11 @@
           "id": "32:3790179132714024264",
           "name": "isRpSms",
           "type": 1
+        },
+        {
+          "id": "33:7747554395546158964",
+          "name": "guidRefs",
+          "type": 30
         }
       ],
       "relations": [
@@ -401,7 +406,7 @@
     },
     {
       "id": "13:4148278195232901830",
-      "lastPropertyId": "49:4357660909480898880",
+      "lastPropertyId": "50:6516059048310614016",
       "name": "Message",
       "properties": [
         {
@@ -603,6 +608,11 @@
         {
           "id": "49:4357660909480898880",
           "name": "isBookmarked",
+          "type": 1
+        },
+        {
+          "id": "50:6516059048310614016",
+          "name": "hasBeenForwarded",
           "type": 1
         }
       ],

@@ -3,12 +3,15 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:async_task/async_task.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:collection/collection.dart';
+import 'package:dlibphonenumber/generated/metadata/phone_number/CH.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Condition;
@@ -16,6 +19,9 @@ import 'package:metadata_fetch/metadata_fetch.dart';
 // (needed when generating objectbox model code)
 // ignore: unnecessary_import
 import 'package:objectbox/objectbox.dart';
+import 'package:supercharged/supercharged.dart';
+import 'package:telephony_plus/telephony_plus.dart';
+import 'package:telephony_plus/src/models/attachment.dart' as TelephonyAttachment;
 
 /// Async method to fetch attachments
 class GetMessageAttachments extends AsyncTask<List<dynamic>, Map<String, List<Attachment?>>> {
@@ -269,6 +275,8 @@ class Message {
   bool didNotifyRecipient;
   bool isBookmarked;
 
+  bool hasBeenForwarded; // local SMS forwarding, used to keep track of this message needs to be sent
+
   final RxInt _error = RxInt(0);
   int get error => _error.value;
   set error(int i) => _error.value = i;
@@ -307,6 +315,28 @@ class Message {
       ? null : jsonEncode(metadata);
   set dbMetadata(String? json) => metadata = json == null
       ? null : jsonDecode(json) as Map<String, dynamic>;
+
+
+  Future<void> forwardIfNessesary(Chat chat) async {
+    if (hasBeenForwarded || !ss.settings.smsForwardingEnabled.value || !chat.isTextForwarding) return;
+    hasBeenForwarded = true;
+    save();
+    var attachments = fetchAttachments()!;
+    bool useMMS = chat.participants.length > 1 || attachments.isNotEmpty;
+    if (useMMS) {
+      await TelephonyPlus().sendMMS(
+        addresses: chat.participants.map((e) => e.address).filter((e) => e.isPhoneNumber).toList(),
+        message: text!,
+        attachments: await Future.wait(attachments.map((e) => e!.toTelephony()).toList())
+      );
+    } else {
+      await TelephonyPlus().sendSMS(
+        address: chat.participants.first.address,
+        message: text!,
+      );
+    }
+    (backend as RustPushBackend).confirmSmsSent(this);
+  }
 
   Message({
     this.id,
@@ -349,6 +379,7 @@ class Message {
     this.wasDeliveredQuietly = false,
     this.didNotifyRecipient = false,
     this.isBookmarked = false,
+    this.hasBeenForwarded = false,
   }) {
       if (handle != null && handleId == null) handleId = handle!.originalROWID;
       if (error != null) _error.value = error;
@@ -441,6 +472,7 @@ class Message {
       wasDeliveredQuietly: json['wasDeliveredQuietly'] ?? false,
       didNotifyRecipient: json['didNotifyRecipient'] ?? false,
       isBookmarked: json['isBookmarked'] ?? false,
+      hasBeenForwarded: json['hasBeenForwarded'] ?? false,
     );
   }
 
@@ -581,6 +613,8 @@ class Message {
       Logger.error('Failed to replace message! This is likely due to a unique constraint being violated. See error below:');
       Logger.error(ex.toString());
     }
+
+    existing.forwardIfNessesary(existing.getChat()!);
     return existing;
   }
 
@@ -1071,6 +1105,8 @@ class Message {
 
     existing.isBookmarked = newMessage.isBookmarked;
 
+    existing.hasBeenForwarded = newMessage.hasBeenForwarded;
+
     return existing;
   }
 
@@ -1111,6 +1147,7 @@ class Message {
       "wasDeliveredQuietly": wasDeliveredQuietly,
       "didNotifyRecipient": didNotifyRecipient,
       "isBookmarked": isBookmarked,
+      "hasBeenForwarded": hasBeenForwarded,
     };
     if (includeObjects) {
       map['attachments'] = (attachments).map((e) => e!.toMap()).toList();
