@@ -1,3 +1,5 @@
+include ":android-smsmms"
+project(":android-smsmms").projectDir = file("/home/tae/Downloads/telephony_plus/android-smsmms/library")
 include ':app'
 
 def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()

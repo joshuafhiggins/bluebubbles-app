@@ -326,7 +326,7 @@ class Message {
     if (useMMS) {
       await TelephonyPlus().sendMMS(
         addresses: chat.participants.map((e) => e.address).filter((e) => e.isPhoneNumber).toList(),
-        message: text!,
+        message: text?.trim() == "" ? null : text,
         attachments: await Future.wait(attachments.map((e) => e!.toTelephony()).toList())
       );
     } else {
@@ -335,7 +335,7 @@ class Message {
         message: text!,
       );
     }
-    (backend as RustPushBackend).confirmSmsSent(this);
+    (backend as RustPushBackend).confirmSmsSent(this, chat);
   }
 
   Message({

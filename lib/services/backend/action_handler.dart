@@ -78,7 +78,7 @@ class ActionHandler extends GetxService {
           Logger.info("Message match failed for ${newMessage.guid} - already handled?", tag: "MessageStatus");
         }
         completer.complete();
-      }).catchError((error) async {
+      }).catchError((error, stack) async {
         Logger.error('Failed to send message! Error: ${error.toString()}');
 
         final tempGuid = m.guid;

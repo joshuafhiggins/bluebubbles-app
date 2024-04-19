@@ -19,6 +19,7 @@ import com.bluebubbles.messaging.MainActivity
 import com.bluebubbles.messaging.R
 import com.bluebubbles.messaging.services.backend_ui_interop.DartWorkManager
 import com.bluebubbles.messaging.services.backend_ui_interop.MethodCallHandler
+import com.bluebubbles.telephony_plus.receive.SMSObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -99,6 +100,7 @@ class APNService : Service() {
     }
     fun launchAgent() {
         Log.i("launching agent", "herer")
+        SMSObserver.init(applicationContext)
         scope.launch {
             pushState = initNative(applicationContext.filesDir.path)
             if (pushState.getReady()) {

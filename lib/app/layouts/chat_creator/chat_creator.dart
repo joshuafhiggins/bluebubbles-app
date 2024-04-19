@@ -471,7 +471,7 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
                         children: [
                           Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text("SMS Forwarding"),
+                            child: Text("Text Message"),
                           ),
                           Icon(Icons.messenger_outline, size: 16),
                         ],

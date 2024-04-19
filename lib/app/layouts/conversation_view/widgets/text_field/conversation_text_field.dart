@@ -952,7 +952,7 @@ class TextFieldComponent extends StatelessWidget {
                         : ss.settings.recipientAsPlaceholder.value == true
                             ? chat!.getTitle()
                             : chat!.isTextForwarding
-                                ? "Text Forwarding"
+                                ? "Text Message"
                                 : "iMessage",
                     enabledBorder: InputBorder.none,
                     border: InputBorder.none,
