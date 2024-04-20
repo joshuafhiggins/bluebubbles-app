@@ -359,6 +359,7 @@ class Chat {
 
   String? usingHandle;
   bool isRpSms;
+  int? telephonyId;
 
   @Backlink('chat')
   final messages = ToMany<Message>();
@@ -388,6 +389,7 @@ class Chat {
     this.lastReadMessageGuid,
     this.usingHandle,
     this.isRpSms = false,
+    this.telephonyId,
     List<String>? guidRefs,
   }) : guidRefs = guidRefs ?? [guid] {
     customAvatarPath = customAvatar;
@@ -423,6 +425,7 @@ class Chat {
       usingHandle: json["usingHandle"],
       isRpSms: json["isRpSms"] ?? false,
       guidRefs: json["guidRefs"] ?? [],
+      telephonyId: json["telephonyId"]
     );
   }
 
@@ -465,6 +468,7 @@ class Chat {
     bool updateIsSms = false,
     bool updateAPNTitle = false,
     bool updateGuidRefs = false,
+    bool updateTelephonyId = false,
   }) {
     if (kIsWeb) return this;
     store.runInTransaction(TxMode.write, () {
@@ -534,6 +538,9 @@ class Chat {
       if (!updateGuidRefs) {
         guidRefs = existing?.guidRefs ?? guidRefs;
       }
+      if (!updateTelephonyId) {
+        telephonyId = existing?.telephonyId ?? telephonyId;
+      }
 
       /// Save the chat and add the participants
       for (int i = 0; i < participants.length; i++) {
@@ -557,8 +564,13 @@ class Chat {
     return this;
   }
 
-  static Future<Chat> getChatForTel(List<String> participants) async {
-    final query = (chatBox.query(Chat_.dateDeleted.isNull())
+  static Future<Chat> getChatForTel(int tid, List<String> participants) async {
+    final query3 = chatBox.query(Chat_.telephonyId.equals(tid)).build();
+    final result4 = query3.findFirst();
+    query3.close();
+    if (result4 != null) return result4;
+
+    final query = (chatBox.query(Chat_.dateDeleted.isNull().and(Chat_.isRpSms.equals(true)))
           ..linkMany(Chat_.handles, Handle_.address.oneOf(participants)))
             .build();
     final results = query.find();
@@ -579,6 +591,8 @@ class Chat {
       result = await backend.createChat(participants, null, "SMS");
       chats.updateChat(result);
     }
+    result.telephonyId = tid;
+    result.save(updateTelephonyId: true);
     return result;
   }
 
@@ -1303,6 +1317,8 @@ class Chat {
     "lockChatName": lockChatName,
     "lockChatIcon": lockChatIcon,
     "lastReadMessageGuid": lastReadMessageGuid,
+    "isRpSms": isRpSms,
     "guidRefs": guidRefs,
+    "telephonyId": telephonyId,
   };
 }

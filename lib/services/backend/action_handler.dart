@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bluebubbles/helpers/ui/facetime_helpers.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/utils/file_utils.dart';
@@ -80,6 +81,21 @@ class ActionHandler extends GetxService {
         completer.complete();
       }).catchError((error, stack) async {
         Logger.error('Failed to send message! Error: ${error.toString()}');
+
+        if (ss.settings.smsForwardingEnabled.value && c.isTextForwarding) {
+          // forward to cell even if couldn't send to APNs
+          try {
+            await m.forwardIfNessesary(c);
+            await Message.replaceMessage(m.guid, m);
+            m.guid = uuid.v4(); // mark it as non-temp
+            m.save();
+            completer.complete(); // oh well, didn't get to apns, still "sent"
+            return;
+          } catch(e) {
+            error = e;
+            Logger.info("Message match failed to forward!", tag: "MessageStatus");
+          }
+        }
 
         final tempGuid = m.guid;
         m = handleSendError(error, m);
@@ -199,6 +215,36 @@ class ActionHandler extends GetxService {
     }).catchError((error) async {
       latestCancelToken = null;
       Logger.error('Failed to send message! Error: ${error.toString()}');
+
+      if (ss.settings.smsForwardingEnabled.value && c.isTextForwarding) {
+        // forward to cell even if couldn't send to APNs
+        try {
+          await m.forwardIfNessesary(c);
+          var messageGuid = uuid.v4();
+          for (Attachment? a in m.attachments) {
+            if (a == null) continue;
+            Attachment.replaceAttachment(m.guid, Attachment(
+              guid: "${messageGuid}_0",
+              uti: a.uti,
+              mimeType: a.mimeType,
+              isOutgoing: true,
+              transferName: a.transferName,
+              totalBytes: a.totalBytes,
+              hasLivePhoto: a.hasLivePhoto,
+              metadata: a.metadata,
+              bytes: a.bytes,
+            ));
+          }
+          await Message.replaceMessage(m.guid, m);
+          m.guid = messageGuid; // mark it as non-temp
+          m.save();
+          completer.complete(); // oh well, didn't get to apns, still "sent"
+          return;
+        } catch(e) {
+          error = e;
+          Logger.info("Message match failed to forward!", tag: "MessageStatus");
+        }
+      }
 
       final tempGuid = m.guid;
       m = handleSendError(error, m);
