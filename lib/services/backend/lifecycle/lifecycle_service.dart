@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:ui' hide window;
 
 import 'package:bluebubbles/main.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/utils/logger.dart';
@@ -62,6 +63,7 @@ class LifecycleService extends GetxService with WidgetsBindingObserver {
         _cvc.lastFocusedNode.requestFocus();
       }
     }
+    pushService.tryWarnVpn();
 
     if (http.originOverride == null) {
       // NetworkTasks.detectLocalhost();

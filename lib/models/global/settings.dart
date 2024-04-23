@@ -152,6 +152,7 @@ class Settings {
   final RxBool macIsMine = true.obs;
   final RxBool smsForwardingEnabled = false.obs;
   final RxBool isSmsRouter = false.obs; // true if we can send/recieve from the app, and via sms forwarding over APNs
+  final RxBool vpnWarned = false.obs;
 
   Future<DisplayMode> getDisplayMode() async {
     List<DisplayMode> modes = await FlutterDisplayMode.supported;
@@ -300,6 +301,7 @@ class Settings {
       'macIsMine': macIsMine.value,
       'smsForwardingEnabled': smsForwardingEnabled.value,
       'isSmsRouter': isSmsRouter.value,
+      'vpnWarned': vpnWarned.value,
     };
     if (includeAll) {
       map.addAll({
@@ -428,6 +430,7 @@ class Settings {
     ss.settings.macIsMine.value = map['macIsMine'] ?? true;
     ss.settings.smsForwardingEnabled.value = map['smsForwardingEnabled'] ?? false;
     ss.settings.isSmsRouter.value = map['isSmsRouter'] ?? false;
+    ss.settings.vpnWarned.value = map['vpnWarned'] ?? false;
     ss.settings.save();
 
     eventDispatcher.emit("theme-update", null);
@@ -556,6 +559,7 @@ class Settings {
     s.macIsMine.value = map['macIsMine'] ?? true;
     s.smsForwardingEnabled.value = map['smsForwardingEnabled'] ?? false;
     s.isSmsRouter.value = map['isSmsRouter'] ?? false;
+    s.vpnWarned.value = map['vpnWarned'] ?? false;
     return s;
   }
 }
