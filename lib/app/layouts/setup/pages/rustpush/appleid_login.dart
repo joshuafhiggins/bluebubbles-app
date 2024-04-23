@@ -195,16 +195,23 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
                                   await showCustomHeadersDialog(context);
                                   connect(appleIdController.text, passwordController.text);
                                 },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                child: Stack(
+                                  alignment: Alignment.center,
                                   children: [
-                                    Text("Sign In",
-                                        style: context.theme.textTheme.bodyLarge!
-                                            .apply(fontSizeFactor: 1.1, color: Colors.white)),
-                                    const SizedBox(width: 10),
-                                    const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                                    Opacity(opacity: loading ? 0 : 1, child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text("Sign In",
+                                            style: context.theme.textTheme.bodyLarge!
+                                                .apply(fontSizeFactor: 1.1, color: Colors.white)),
+                                        const SizedBox(width: 10),
+                                        const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                                      ],
+                                    ),),
+                                    if (loading)
+                                    buildProgressIndicator(context, brightness: Brightness.dark),
                                   ],
-                                ),
+                                )
                               ),
                             ),
                           ],
@@ -240,6 +247,13 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
           curve: Curves.easeInOut,
         );
         return;
+      }
+      if (ans is api.DartLoginState_LoggedIn) {
+        controller.pageController.animateToPage(
+          controller.pageController.page!.toInt() + 2,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       }
     } catch (e) {
       if (e is AnyhowException) {

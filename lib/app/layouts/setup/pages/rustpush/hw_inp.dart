@@ -243,16 +243,23 @@ class _HwInpState extends OptimizedState<HwInp> {
                                   http.onInit();
                                   connect(staging!);
                                 },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                child: Stack(
+                                  alignment: Alignment.center,
                                   children: [
-                                    Text(staging == null ? "Continue" : "Use this Mac",
-                                        style: context.theme.textTheme.bodyLarge!
-                                            .apply(fontSizeFactor: 1.1, color: Colors.white)),
-                                    const SizedBox(width: 10),
-                                    const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                                    Opacity(opacity: loading ? 0 : 1, child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(staging == null ? "Continue" : "Use this Mac",
+                                            style: context.theme.textTheme.bodyLarge!
+                                                .apply(fontSizeFactor: 1.1, color: Colors.white)),
+                                        const SizedBox(width: 10),
+                                        const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                                      ],
+                                    )),
+                                    if (loading)
+                                    buildProgressIndicator(context, brightness: Brightness.dark),
                                   ],
-                                ),
+                                )
                               ),
                             ),
                           ],

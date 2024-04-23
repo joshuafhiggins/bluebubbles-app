@@ -1,6 +1,7 @@
 import 'package:bluebubbles/app/layouts/conversation_list/pages/conversation_list.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_2fa.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_login.dart';
+import 'package:bluebubbles/app/layouts/setup/pages/rustpush/finalize.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/hw_inp.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/os_config.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
@@ -132,27 +133,18 @@ class SetupViewController extends StatefulController {
       }
       await pushService.configured();
       await setup.finishSetup();
-      Get.offAll(() => ConversationList(
-          showArchivedChats: false,
-          showUnknownSenders: false,
-        ),
-        routeName: "",
-        duration: Duration.zero,
-        transition: Transition.noTransition
-      );
-      Get.delete<SetupViewController>(force: true);
     }
     return ret;
   }
 
-  Future<void> submitCode(String code) async {
+  Future<DartLoginState> submitCode(String code) async {
     if (state is DartLoginState_Needs2FAVerification) {
       state = await api.verify2Fa(state: pushService.state, code: code);
     } else if (state is DartLoginState_NeedsSMS2FAVerification) {
       var myState = state as DartLoginState_NeedsSMS2FAVerification;
       state = await api.verify2FaSms(state: pushService.state, body: myState.field0, code: code);
     }
-    await updateLoginState(state);
+    return await updateLoginState(state);
   }
 
   String twoFaUser = "";
@@ -301,7 +293,7 @@ class _PageNumberState extends CustomState<PageNumber, int, SetupViewController>
             style: context.theme.textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold)
           ),
           TextSpan(
-            text: " of ${kIsWeb ? "4" : kIsDesktop ? "5" : "7"}",
+            text: " of ${kIsWeb ? "4" : kIsDesktop ? "5" : "8"}",
             style: context.theme.textTheme.bodyLarge!.copyWith(color: Colors.white38, fontWeight: FontWeight.bold)
           ),
         ],
@@ -363,6 +355,8 @@ class SetupPages extends StatelessWidget {
             AppleIdLogin(),
           if (usingRustPush)
             AppleId2FA(),
+          if (usingRustPush)
+            FinalizePage(),
           //ThemeSelector(),
         ],
       ),

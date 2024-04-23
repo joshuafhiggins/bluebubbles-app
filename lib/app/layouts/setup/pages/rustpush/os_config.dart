@@ -109,6 +109,7 @@ class _OsConfigState extends OptimizedState<OsConfig> {
           );
         }
       ),
+      if (!kIsDesktop)
       (
         icon: Icons.arrow_forward,
         text: "Scan code",
