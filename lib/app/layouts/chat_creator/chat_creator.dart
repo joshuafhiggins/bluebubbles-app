@@ -672,13 +672,14 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
                         sendMessage: ({String? effect}) async {
                           addressOnSubmitted();
                           final chat = fakeController.value?.chat ?? await findExistingChat(checkDeleted: true, update: false);
-                          bool existsOnServer = false;
+                          bool existsOnServer = true; // if there is no remote, we exist on the "server"
                           if (chat != null && backend.getRemoteService() != null) {
                             // if we don't error, then the chat exists
                             try {
                               await backend.getRemoteService()!.singleChat(chat.guid);
-                              existsOnServer = true;
-                            } catch (_) {}
+                            } catch (_) {
+                              existsOnServer = false;
+                            }
                           }
                           if (chat != null && existsOnServer) {
                             ns.pushAndRemoveUntil(
