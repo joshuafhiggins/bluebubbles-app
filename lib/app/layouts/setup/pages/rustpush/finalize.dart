@@ -5,6 +5,7 @@ import 'package:bluebubbles/app/layouts/conversation_list/pages/conversation_lis
 import 'package:bluebubbles/app/layouts/setup/pages/page_template.dart';
 import 'package:bluebubbles/app/layouts/setup/setup_view.dart';
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
+import 'package:bluebubbles/services/backend/settings/settings_service.dart';
 import 'package:bluebubbles/src/rust/api/api.dart' as api;
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
@@ -61,7 +62,7 @@ class _FinalizePageState extends OptimizedState<FinalizePage> {
             if (!kIsDesktop)
             const Text(
               "Note: Phone numbers cannot be registered without an iOS device"
-            )
+            ),
           ],
         ),
       ),
@@ -78,7 +79,11 @@ class _FinalizePageState extends OptimizedState<FinalizePage> {
                     ),
                     child: Column(
                       children: [
-                        
+                        if (ss.settings.macIsMine.value)
+                        const Text(
+                          "Share your iMessage access with up to 20 friends in settings!",
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,

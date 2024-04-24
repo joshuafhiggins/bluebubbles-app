@@ -81,6 +81,7 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
 
     addressController.addListener(() {
       _debounce?.cancel();
+      print("right app");
       _debounce = Timer(const Duration(milliseconds: 250), () async {
         final tuple = await SchedulerBinding.instance.scheduleTask(() async {
           if (addressController.text != oldText) {
@@ -93,12 +94,14 @@ class ChatCreatorState extends OptimizedState<ChatCreator> {
             }
           }
           final query = addressController.text.toLowerCase();
+          print("here");
           final _contacts = contacts
               .where((e) =>
                   e.displayName.toLowerCase().contains(query) ||
                   e.phones.firstWhereOrNull((e) => cleansePhoneNumber(e.toLowerCase()).contains(query)) != null ||
                   e.emails.firstWhereOrNull((e) => e.toLowerCase().contains(query)) != null)
               .toList();
+          print("contacts  $_contacts");
           final ids = _contacts.map((e) => e.id);
           final _chats = existingChats.where((e) =>
               ((iMessage && e.isIMessage) || (sms && !e.isIMessage)) &&

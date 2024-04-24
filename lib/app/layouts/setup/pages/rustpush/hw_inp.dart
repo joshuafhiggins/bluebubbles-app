@@ -161,7 +161,7 @@ class _HwInpState extends OptimizedState<HwInp> {
                             child: TextField(
                               cursorColor: context.theme.colorScheme.primary,
                               autocorrect: false,
-                              autofocus: false,
+                              autofocus: true,
                               controller: codeController,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
@@ -276,6 +276,7 @@ class _HwInpState extends OptimizedState<HwInp> {
   void goBack() {
     controller.twoFaUser = "";
     controller.twoFaPass = "";
+    FocusManager.instance.primaryFocus?.unfocus();
     controller.pageController.previousPage(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,

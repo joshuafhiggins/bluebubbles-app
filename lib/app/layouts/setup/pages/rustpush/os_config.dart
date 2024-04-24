@@ -211,6 +211,7 @@ class _OsConfigState extends OptimizedState<OsConfig> {
                 ],
                 content: TextField(
                   controller: codeInput,
+                  autofocus: true,
                   decoration: const InputDecoration(
                     labelText: "Code",
                     border: OutlineInputBorder(),

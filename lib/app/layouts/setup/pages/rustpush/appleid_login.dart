@@ -23,6 +23,7 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
   final TextEditingController passwordController = TextEditingController();
   final controller = Get.find<SetupViewController>();
   final FocusNode focusNode = FocusNode();
+  final FocusNode pwFocusNode = FocusNode();
   bool loading = false;
 
   bool obscureText = true;
@@ -62,9 +63,12 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
                             child: TextField(
                               cursorColor: context.theme.colorScheme.primary,
                               autocorrect: false,
-                              autofocus: false,
+                              autofocus: true,
                               controller: appleIdController,
                               textInputAction: TextInputAction.next,
+                              onEditingComplete: () {
+                                FocusScope.of(context).requestFocus(pwFocusNode);
+                              },
                               decoration: InputDecoration(
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: context.theme.colorScheme.outline),
@@ -96,8 +100,9 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
                               autocorrect: false,
                               autofocus: false,
                               controller: passwordController,
-                              textInputAction: TextInputAction.next,
+                              textInputAction: TextInputAction.done,
                               onSubmitted: (pass) => connect(appleIdController.text, pass),
+                              focusNode: pwFocusNode,
                               decoration: InputDecoration(
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(color: context.theme.colorScheme.outline),
@@ -240,6 +245,7 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
       ss.settings.iCloudAccount.value = appleId;
       if (ans is api.DartLoginState_Needs2FAVerification || ans is api.DartLoginState_NeedsSMS2FAVerification) {
         // we need 2fa
+        controller.goingTo2fa = true;
         controller.twoFaUser = appleId;
         controller.twoFaPass = password;
         controller.pageController.nextPage(
@@ -249,11 +255,13 @@ class _AppleIdLoginState extends OptimizedState<AppleIdLogin> {
         return;
       }
       if (ans is api.DartLoginState_LoggedIn) {
+        controller.goingTo2fa = false;
         controller.pageController.animateToPage(
           controller.pageController.page!.toInt() + 2,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
+        FocusManager.instance.primaryFocus?.unfocus();
       }
     } catch (e) {
       if (e is AnyhowException) {

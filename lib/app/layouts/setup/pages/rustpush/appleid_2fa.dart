@@ -115,7 +115,7 @@ class _AppleId2FAState extends OptimizedState<AppleId2FA> {
                                   child: TextField(
                                     cursorColor: context.theme.colorScheme.primary,
                                     autocorrect: false,
-                                    autofocus: true,
+                                    autofocus: controller.goingTo2fa, // if we're not going don't pop up the keyboard for a transitive state
                                     controller: codeController,
                                     textInputAction: TextInputAction.next,
                                     keyboardType: TextInputType.number,
@@ -265,6 +265,7 @@ class _AppleId2FAState extends OptimizedState<AppleId2FA> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
+        FocusManager.instance.primaryFocus?.unfocus();
       }
     } catch (e) {
       if (e is AnyhowException) {
