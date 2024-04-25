@@ -3,7 +3,6 @@ import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_2fa.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/appleid_login.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/finalize.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/rustpush/hw_inp.dart';
-import 'package:bluebubbles/app/layouts/setup/pages/rustpush/os_config.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/setup/pages/setup_checks/battery_optimization.dart';
 import 'package:bluebubbles/app/layouts/setup/dialogs/failed_to_connect_dialog.dart';
@@ -37,11 +36,6 @@ class SetupViewController extends StatefulController {
   String error = "";
   bool obscurePass = true;
   RxBool isSms = false.obs;
-  int hardwareMode = 0;
-  String? asking;
-  bool preparedMine = true;
-  bool usingBeeper = false;
-  api.MacOsConfig? prepareStaging;
 
   bool goingTo2fa = true;
 
@@ -295,7 +289,7 @@ class _PageNumberState extends CustomState<PageNumber, int, SetupViewController>
             style: context.theme.textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold)
           ),
           TextSpan(
-            text: " of ${kIsWeb ? "4" : kIsDesktop ? "5" : "8"}",
+            text: " of ${kIsWeb ? "4" : kIsDesktop ? "5" : "7"}",
             style: context.theme.textTheme.bodyLarge!.copyWith(color: Colors.white38, fontWeight: FontWeight.bold)
           ),
         ],
@@ -349,8 +343,6 @@ class SetupPages extends StatelessWidget {
             SyncSettings(),
           if (!usingRustPush)
             SyncProgress(),
-          if (usingRustPush)
-            OsConfig(),
           if (usingRustPush)
             HwInp(),
           if (usingRustPush)
