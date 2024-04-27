@@ -165,7 +165,7 @@ class ActionHandler extends GetxService {
       latestCancelToken = null;
       Logger.error('Failed to send message! Error: ${error.toString()}');
 
-      if (ss.settings.smsForwardingEnabled.value && c.isTextForwarding && !apnsSuccess) {
+      if (ss.settings.isSmsRouter.value && c.isTextForwarding && !apnsSuccess) {
         // forward to cell even if couldn't send to APNs
         try {
           await m.forwardIfNessesary(c);

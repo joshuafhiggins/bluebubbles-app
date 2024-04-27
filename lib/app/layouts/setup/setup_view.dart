@@ -127,6 +127,7 @@ class SetupViewController extends StatefulController {
               ));
         return ret;
       }
+      ss.settings.cachedCodes.clear();
       await pushService.configured();
       await setup.finishSetup();
     }

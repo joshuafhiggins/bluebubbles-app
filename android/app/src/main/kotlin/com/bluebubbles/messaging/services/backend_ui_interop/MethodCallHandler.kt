@@ -34,6 +34,7 @@ class MethodCallHandler {
         var getNotificationListenerResult: MethodChannel.Result? = null
 
         init {
+            // not being called??
             SMSObserver.listener = listener@{ context, map ->
                 if (engine != null) {
                     // app is alive, deliver directly there
