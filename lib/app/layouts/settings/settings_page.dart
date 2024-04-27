@@ -625,7 +625,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                   child: SettingsDivider(color: context.theme.colorScheme.surfaceVariant),
                                 ),
                               ),
-                              if (!kIsWeb && !kIsDesktop)
+                              if (!kIsWeb && !kIsDesktop && backend.getRemoteService() != null)
                                 SettingsTile(
                                   backgroundColor: tileColor,
                                   onTap: () async {
@@ -691,7 +691,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                       var map = c.toMap();
                                       contacts.add(map);
                                     }
-                                    http.createContact(contacts, onSendProgress: (count, total) {
+                                    backend.getRemoteService()!.createContact(contacts, onSendProgress: (count, total) {
                                       uploadingContacts.value = true;
                                       progress.value = count / total;
                                       totalSize.value = total;
