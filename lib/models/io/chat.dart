@@ -424,7 +424,7 @@ class Chat {
       lastReadMessageGuid: json["lastReadMessageGuid"],
       usingHandle: json["usingHandle"],
       isRpSms: json["isRpSms"] ?? false,
-      guidRefs: json["guidRefs"] ?? [],
+      guidRefs: json["guidRefs"]?.cast<String>() ?? [],
       telephonyId: json["telephonyId"]
     );
   }
