@@ -9,6 +9,7 @@ import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart' hide BackButton;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:universal_io/io.dart';
+import 'package:bluebubbles/src/rust/api/api.dart' as api;
 
 class CupertinoHeader extends StatelessWidget implements PreferredSizeWidget {
   const CupertinoHeader({Key? key, required this.controller});
@@ -114,6 +116,45 @@ class CupertinoHeader extends StatelessWidget implements PreferredSizeWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: _ChatIconAndTitle(parentController: controller),
+                      ),
+                    ),
+                  ),
+                ),
+                if (ss.settings.macIsMine.value && controller.chat.isRpSms && !controller.inSelectMode.value)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: XGestureDetector(
+                    supportTouch: true,
+                    onTap: (details) async {
+                      await showDialog(
+                        context: Get.context!,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Choose your friends wisely'),
+                          content: Text(
+                            "Apple may block devices due to spam or exceeding 20 users.",
+                            style: Get.textTheme.bodyLarge,
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: Text("Cancel", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary))),
+                            TextButton(
+                                    onPressed: () async {
+                                        Get.back();
+                                        String code = await pushService.uploadCode(false, await api.getDeviceInfoState(state: pushService.state));
+                                        String text = "Text me on BlueBubbles with my activation code! $code\n$rpApiRoot/code/$code";
+                                        controller.textController.text = text;
+                                    },
+                                    child: Text("Invite", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary))),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10.0, right: 3, bottom: 10),
+                      child: Text(
+                        "Invite",
+                        style: context.theme.textTheme.bodyMedium,
                       ),
                     ),
                   ),
