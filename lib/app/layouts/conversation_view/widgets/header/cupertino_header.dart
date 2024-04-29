@@ -142,7 +142,7 @@ class CupertinoHeader extends StatelessWidget implements PreferredSizeWidget {
                                     onPressed: () async {
                                         Get.back();
                                         String code = await pushService.uploadCode(false, await api.getDeviceInfoState(state: pushService.state));
-                                        String text = "Text me on BlueBubbles with my activation code! $code\n$rpApiRoot/code/$code";
+                                        String text = "Text me on OpenBubbles with my activation code! $code\n$rpApiRoot/code/$code";
                                         controller.textController.text = text;
                                     },
                                     child: Text("Invite", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary))),

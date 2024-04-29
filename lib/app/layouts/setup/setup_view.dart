@@ -320,7 +320,7 @@ class SetupHeader extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                "BlueBubbles",
+                "OpenBubbles",
                 style: context.theme.textTheme.bodyLarge!.apply(fontWeightDelta: 2, fontSizeFactor: 1.35),
               ),
             ],
