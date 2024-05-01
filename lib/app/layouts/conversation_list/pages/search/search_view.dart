@@ -6,6 +6,7 @@ import 'package:bluebubbles/app/layouts/settings/widgets/settings_widgets.dart';
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
 import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/models/models.dart';
+import 'package:bluebubbles/services/network/backend_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -50,7 +51,7 @@ class SearchViewState extends OptimizedState<SearchView> {
   bool noResults = false;
   bool isSearching = false;
   String? currentSearchTerm;
-  bool local = false;
+  bool local = backend.getRemoteService() == null;
   bool network = true;
 
   Color get backgroundColor => ss.settings.windowEffect.value == WindowEffect.disabled
@@ -94,7 +95,7 @@ class SearchViewState extends OptimizedState<SearchView> {
     );
 
     if (local) {
-      final query = (messageBox.query(Message_.text.contains(currentSearchTerm!)
+      final query = (messageBox.query(Message_.text.contains(currentSearchTerm!, caseSensitive: false)
           .and(Message_.associatedMessageGuid.isNull())
           .and(Message_.dateDeleted.isNull())
           .and(Message_.dateCreated.notNull()))
@@ -253,7 +254,7 @@ class SearchViewState extends OptimizedState<SearchView> {
                 suffixMode: OverlayVisibilityMode.editing,
               ),
             ),
-            if (!kIsWeb)
+            if (!kIsWeb && backend.getRemoteService() != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
                 child: ToggleButtons(

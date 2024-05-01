@@ -508,6 +508,7 @@ class Message {
   /// than iterating through them
   Message save({Chat? chat, bool updateIsBookmarked = false}) {
     if (kIsWeb) return this;
+    print("Saving message $guid");
     store.runInTransaction(TxMode.write, () {
       Message? existing = Message.findOne(guid: guid);
       if (existing != null) {
