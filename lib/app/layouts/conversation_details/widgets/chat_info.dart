@@ -8,6 +8,7 @@ import 'package:bluebubbles/app/components/avatars/contact_avatar_group_widget.d
 import 'package:bluebubbles/app/wrappers/stateful_boilerplate.dart';
 import 'package:bluebubbles/models/models.dart';
 import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/services/services.dart';
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:universal_io/io.dart';
+import 'package:bluebubbles/src/rust/api/api.dart' as api;
 
 class ChatInfo extends StatefulWidget {
   const ChatInfo({super.key, required this.chat});
@@ -435,49 +437,108 @@ class _ChatInfoState extends OptimizedState<ChatInfo> {
                         ),
                       ),
                     ),
-                  if (!kIsWeb && !kIsDesktop)
                     Expanded(
-                      child: Material(
-                        borderRadius: BorderRadius.circular(15),
-                        color: tileColor,
-                        child: InkWell(
-                          onTap: () async {
-                            final contact = chat.participants.first.contact;
-                            final handle = chat.participants.first;
-                            if (contact == null) {
-                              await mcs.invokeMethod("open-contact-form", {'address': handle.address, 'address_type': handle.address.isEmail ? 'email' : 'phone'});
-                            } else {
-                              try {
-                                await mcs.invokeMethod("view-contact-form", {'id': contact.id});
-                              } catch (_) {
-                                showSnackbar("Error", "Failed to find contact on device!");
-                              }
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(15),
-                          child: SizedBox(
-                            height: 60,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  chat.participants.first.contact != null
-                                      ? (iOS ? CupertinoIcons.info : Icons.info)
-                                      : (iOS ? CupertinoIcons.plus_circle : Icons.add_circle_outline),
-                                  color: context.theme.colorScheme.onSurface,
-                                  size: 20,
+                      child: Row(
+                        children: [
+                          if (!kIsWeb && !kIsDesktop)
+                          Expanded(child: Material(
+                            borderRadius: BorderRadius.circular(15),
+                            color: tileColor,
+                            child: InkWell(
+                              onTap: () async {
+                                final contact = chat.participants.first.contact;
+                                final handle = chat.participants.first;
+                                if (contact == null) {
+                                  await mcs.invokeMethod("open-contact-form", {'address': handle.address, 'address_type': handle.address.isEmail ? 'email' : 'phone'});
+                                } else {
+                                  try {
+                                    await mcs.invokeMethod("view-contact-form", {'id': contact.id});
+                                  } catch (_) {
+                                    showSnackbar("Error", "Failed to find contact on device!");
+                                  }
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(15),
+                              child: SizedBox(
+                                height: 60,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      chat.participants.first.contact != null
+                                          ? (iOS ? CupertinoIcons.info : Icons.info)
+                                          : (iOS ? CupertinoIcons.plus_circle : Icons.add_circle_outline),
+                                      color: context.theme.colorScheme.onSurface,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(height: 7.5),
+                                    Text(
+                                      chat.participants.first.contact != null ? "Info" : "Add Contact",
+                                      style: context.theme.textTheme.bodySmall!.copyWith(color: context.theme.colorScheme.onSurface)
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 7.5),
-                                Text(
-                                  chat.participants.first.contact != null ? "Info" : "Add Contact",
-                                  style: context.theme.textTheme.bodySmall!.copyWith(color: context.theme.colorScheme.onSurface)
+                              ),
+                            ),
+                          )),
+                          if (ss.settings.macIsMine.value && chat.isRpSms)
+                          const SizedBox(width: 5),
+                          if (ss.settings.macIsMine.value && chat.isRpSms)
+                          Expanded(
+                            child: Material(
+                              borderRadius: BorderRadius.circular(15),
+                              color: tileColor,
+                              child: InkWell(
+                                onTap: () {
+                                  var ctx = context;
+                                  showDialog(
+                                    context: Get.context!,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Choose your friends wisely'),
+                                      content: Text(
+                                        "Apple may block devices due to spam or exceeding 20 users.",
+                                        style: Get.textTheme.bodyLarge,
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                                onPressed: () => Get.back(),
+                                                child: Text("Cancel", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary))),
+                                        TextButton(
+                                                onPressed: () async {
+                                                    Get.back();
+                                                    String code = await pushService.uploadCode(false, await api.getDeviceInfoState(state: pushService.state));
+                                                    String text = "Text me on OpenBubbles with my activation code! $code\n$rpApiRoot/code/$code";
+                                                    cvc(chat).textController.text = text;
+                                                    Navigator.of(ctx).pop();
+                                                },
+                                                child: Text("Invite", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary))),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(15),
+                                child: SizedBox(
+                                  height: 60,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.arrow_up_right_diamond,
+                                        color: context.theme.colorScheme.onSurface,
+                                        size: 20
+                                      ),
+                                      const SizedBox(height: 7.5),
+                                      Text("Invite", style: context.theme.textTheme.bodySmall!.copyWith(color: context.theme.colorScheme.onSurface)),
+                                    ],
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        ],
+                      )
                     ),
                 ]).toList(),
               ),
