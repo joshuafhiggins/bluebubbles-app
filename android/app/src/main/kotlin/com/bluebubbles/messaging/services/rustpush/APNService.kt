@@ -85,7 +85,7 @@ class APNService : Service() {
 
     fun listenLoop() {
         Log.i("launching agent", "stalling")
-        scope.launch {
+        Thread {
             while (true) {
                 val recievedMsg = pushState.recvWait()
                 if (recievedMsg == ULong.MAX_VALUE) {
@@ -96,18 +96,18 @@ class APNService : Service() {
                     recievedMsg(recievedMsg)
                 }
             }
-        }
+        }.start()
     }
     fun launchAgent() {
         Log.i("launching agent", "herer")
         SMSObserver.init(applicationContext)
-        scope.launch {
+        Thread {
             pushState = initNative(applicationContext.filesDir.path)
             if (pushState.getReady()) {
                 listenLoop()
             }
             ready()
-        }
+        }.start()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -31,13 +31,6 @@ import java.nio.charset.CodingErrorAction
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.resume
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 // This is a helper for safely working with byte buffers returned from the Rust code.
 // A rust-owned buffer is represented by its capacity, its current length, and a
@@ -731,14 +724,14 @@ internal interface UniffiLib : Library {
     ): Pointer
     fun uniffi_rust_lib_bluebubbles_fn_free_nativepushstate(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_get_ready(`ptr`: Pointer,
-    ): Long
+    fun uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_get_ready(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
     fun uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_get_state(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_recv_wait(`ptr`: Pointer,
+    fun uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_recv_wait(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun uniffi_rust_lib_bluebubbles_fn_func_init_native(`dir`: RustBuffer.ByValue,
-    ): Long
+    fun uniffi_rust_lib_bluebubbles_fn_func_init_native(`dir`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Pointer
     fun ffi_rust_lib_bluebubbles_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun ffi_rust_lib_bluebubbles_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
@@ -876,61 +869,21 @@ private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
 
 @Suppress("UNUSED_PARAMETER")
 private fun uniffiCheckApiChecksums(lib: UniffiLib) {
-    if (lib.uniffi_rust_lib_bluebubbles_checksum_func_init_native() != 645.toShort()) {
+    if (lib.uniffi_rust_lib_bluebubbles_checksum_func_init_native() != 56491.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_rust_lib_bluebubbles_checksum_method_nativepushstate_get_ready() != 59575.toShort()) {
+    if (lib.uniffi_rust_lib_bluebubbles_checksum_method_nativepushstate_get_ready() != 22022.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_rust_lib_bluebubbles_checksum_method_nativepushstate_get_state() != 53880.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_rust_lib_bluebubbles_checksum_method_nativepushstate_recv_wait() != 1962.toShort()) {
+    if (lib.uniffi_rust_lib_bluebubbles_checksum_method_nativepushstate_recv_wait() != 31135.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
 }
 
 // Async support
-// Async return type handlers
-
-internal const val UNIFFI_RUST_FUTURE_POLL_READY = 0.toByte()
-internal const val UNIFFI_RUST_FUTURE_POLL_MAYBE_READY = 1.toByte()
-
-internal val uniffiContinuationHandleMap = UniffiHandleMap<CancellableContinuation<Byte>>()
-
-// FFI type for Rust future continuations
-internal object uniffiRustFutureContinuationCallbackImpl: UniffiRustFutureContinuationCallback {
-    override fun callback(data: Long, pollResult: Byte) {
-        uniffiContinuationHandleMap.remove(data).resume(pollResult)
-    }
-}
-
-internal suspend fun<T, F, E: Exception> uniffiRustCallAsync(
-    rustFuture: Long,
-    pollFunc: (Long, UniffiRustFutureContinuationCallback, Long) -> Unit,
-    completeFunc: (Long, UniffiRustCallStatus) -> F,
-    freeFunc: (Long) -> Unit,
-    liftFunc: (F) -> T,
-    errorHandler: UniffiRustCallStatusErrorHandler<E>
-): T {
-    try {
-        do {
-            val pollResult = suspendCancellableCoroutine<Byte> { continuation ->
-                pollFunc(
-                    rustFuture,
-                    uniffiRustFutureContinuationCallbackImpl,
-                    uniffiContinuationHandleMap.insert(continuation)
-                )
-            }
-        } while (pollResult != UNIFFI_RUST_FUTURE_POLL_READY);
-
-        return liftFunc(
-            uniffiRustCallWithError(errorHandler, { status -> completeFunc(rustFuture, status) })
-        )
-    } finally {
-        freeFunc(rustFuture)
-    }
-}
 
 // Public interface members begin here.
 
@@ -1222,11 +1175,11 @@ private class JavaLangRefCleanable(
 }
 public interface NativePushStateInterface {
     
-    suspend fun `getReady`(): kotlin.Boolean
+    fun `getReady`(): kotlin.Boolean
     
     fun `getState`(): kotlin.ULong
     
-    suspend fun `recvWait`(): kotlin.ULong
+    fun `recvWait`(): kotlin.ULong
     
     companion object
 }
@@ -1312,25 +1265,17 @@ open class NativePushState: Disposable, AutoCloseable, NativePushStateInterface 
         }
     }
 
+    override fun `getReady`(): kotlin.Boolean =
+        callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_get_ready(it,
+        
+        _status)
+}
+        }.let {
+            FfiConverterBoolean.lift(it)
+        }
     
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `getReady`() : kotlin.Boolean {
-        return uniffiRustCallAsync(
-            callWithPointer { thisPtr ->
-                UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_get_ready(
-                    thisPtr,
-                    
-                )
-            },
-            { future, callback, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_poll_i8(future, callback, continuation) },
-            { future, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_complete_i8(future, continuation) },
-            { future -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_free_i8(future) },
-            // lift function
-            { FfiConverterBoolean.lift(it) },
-            // Error FFI converter
-            UniffiNullRustCallStatusErrorHandler,
-        )
-    }
     override fun `getState`(): kotlin.ULong =
         callWithPointer {
     uniffiRustCall() { _status ->
@@ -1342,25 +1287,17 @@ open class NativePushState: Disposable, AutoCloseable, NativePushStateInterface 
             FfiConverterULong.lift(it)
         }
     
+    override fun `recvWait`(): kotlin.ULong =
+        callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_recv_wait(it,
+        
+        _status)
+}
+        }.let {
+            FfiConverterULong.lift(it)
+        }
     
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `recvWait`() : kotlin.ULong {
-        return uniffiRustCallAsync(
-            callWithPointer { thisPtr ->
-                UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_method_nativepushstate_recv_wait(
-                    thisPtr,
-                    
-                )
-            },
-            { future, callback, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_poll_u64(future, callback, continuation) },
-            { future, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_complete_u64(future, continuation) },
-            { future -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_free_u64(future) },
-            // lift function
-            { FfiConverterULong.lift(it) },
-            // Error FFI converter
-            UniffiNullRustCallStatusErrorHandler,
-        )
-    }
     
 
     
@@ -1394,25 +1331,11 @@ public object FfiConverterTypeNativePushState: FfiConverter<NativePushState, Poi
     }
 }
 
-
-
-
-
-
-
-
-
-@Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-suspend fun `initNative`(`dir`: kotlin.String) : NativePushState {
-    return uniffiRustCallAsync(
-        UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_func_init_native(FfiConverterString.lower(`dir`),),
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_poll_pointer(future, callback, continuation) },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_complete_pointer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_rust_lib_bluebubbles_rust_future_free_pointer(future) },
-        // lift function
-        { FfiConverterTypeNativePushState.lift(it) },
-        // Error FFI converter
-        UniffiNullRustCallStatusErrorHandler,
-    )
+fun `initNative`(`dir`: kotlin.String): NativePushState {
+    return FfiConverterTypeNativePushState.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_rust_lib_bluebubbles_fn_func_init_native(FfiConverterString.lower(`dir`),_status)
+})
 }
+
 
