@@ -23,12 +23,11 @@ import com.bluebubbles.telephony_plus.receive.SMSObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import uniffi.rust_lib_bluebubbles.NativePushState
 import uniffi.rust_lib_bluebubbles.initNative
+import uniffi.rust_lib_bluebubbles.MsgReceiver
 
-
-class APNService : Service() {
+class APNService : Service(), MsgReceiver {
     lateinit var pushState: NativePushState
     private var started = false
     private val binder = APNBinder()
@@ -52,8 +51,7 @@ class APNService : Service() {
         }
     }
 
-    fun recievedMsg(ptr: ULong) {
-        Log.i("launching agent", "gotptr")
+    override fun receievedMsg(ptr: ULong) {
         Handler(Looper.getMainLooper()).post {
             if (MainActivity.engine != null) {
                 Log.i("ugh running", "here $ptr")
@@ -68,7 +66,7 @@ class APNService : Service() {
     }
 
     fun configured() {
-        listenLoop()
+        pushState.startLoop(this)
     }
 
     fun getHandle(cb: (handle: ULong) -> Unit) {
@@ -83,31 +81,18 @@ class APNService : Service() {
         }
     }
 
-    fun listenLoop() {
-        Log.i("launching agent", "stalling")
-        Thread {
-            while (true) {
-                val recievedMsg = pushState.recvWait()
-                if (recievedMsg == ULong.MAX_VALUE) {
-                    ready = false;
-                    break
-                }
-                if (recievedMsg != 0UL) {
-                    recievedMsg(recievedMsg)
-                }
-            }
-        }.start()
+    override fun nativeReady(isReady: Boolean, state: NativePushState) {
+        pushState = state
+        if (isReady) {
+            state.startLoop(this)
+        }
+        ready()
     }
+
     fun launchAgent() {
         Log.i("launching agent", "herer")
         SMSObserver.init(applicationContext)
-        Thread {
-            pushState = initNative(applicationContext.filesDir.path)
-            if (pushState.getReady()) {
-                listenLoop()
-            }
-            ready()
-        }.start()
+        initNative(applicationContext.filesDir.path, this)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
