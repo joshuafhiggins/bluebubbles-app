@@ -1,4 +1,6 @@
+import 'package:bluebubbles/main.dart';
 import 'package:bluebubbles/services/network/backend_service.dart';
+import 'package:bluebubbles/services/rustpush/rustpush_service.dart';
 import 'package:bluebubbles/utils/logger.dart';
 import 'package:bluebubbles/helpers/helpers.dart';
 import 'package:bluebubbles/app/layouts/settings/widgets/settings_widgets.dart';
@@ -12,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:universal_io/io.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:bluebubbles/src/rust/api/api.dart' as api;
 
 class TroubleshootPanel extends StatefulWidget {
 
@@ -357,6 +360,24 @@ class _TroubleshootPanelState extends OptimizedState<TroubleshootPanel> {
                             valueColor: AlwaysStoppedAnimation<Color>(context.theme.colorScheme.primary),
                           )) : Icon(Icons.check, color: context.theme.colorScheme.outline)
                       )),
+                  ]),
+              if (usingRustPush)
+                SettingsHeader(
+                  iosSubtitle: iosSubtitle,
+                  materialSubtitle: materialSubtitle,
+                  text: "iMessage"
+                ),
+              if (usingRustPush)
+                SettingsSection(
+                  backgroundColor: tileColor,
+                  children: [
+                    SettingsTile(
+                      title: "Clear identity cache",
+                      subtitle: "Run this troubleshooter if you're having trouble sending messages.",
+                      onTap: () async {
+                        await api.invalidateIdCache(state: pushService.state);
+                        showSnackbar("Success", "Identity cache cleared! Try re-sending any messages.");
+                      }),
                   ]),
               if (kIsDesktop)
                 const SizedBox(height: 100),
