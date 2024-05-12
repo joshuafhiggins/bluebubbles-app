@@ -508,7 +508,7 @@ class _ChatInfoState extends OptimizedState<ChatInfo> {
                                                 onPressed: () async {
                                                     Get.back();
                                                     String code = await pushService.uploadCode(false, await api.getDeviceInfoState(state: pushService.state));
-                                                    String text = "Text me on OpenBubbles with my activation code! $code\n$rpApiRoot/code/$code";
+                                                    String text = "$rpApiRoot/code/$code";
                                                     cvc(chat).textController.text = text;
                                                     Navigator.of(ctx).pop();
                                                 },
