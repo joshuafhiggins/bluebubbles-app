@@ -746,7 +746,7 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                         actions: <Widget>[
                                           if (!kIsWeb)
                                             TextButton(
-                                              child: Text("Remove Attachments", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
+                                              child: Text("Just Attachments", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
                                               onPressed: () async {
                                                 final dir = Directory("${fs.appDocDir.path}/attachments");
                                                 await dir.delete(recursive: true);
@@ -754,16 +754,40 @@ class _SettingsPageState extends OptimizedState<SettingsPage> {
                                               },
                                             ),
                                           TextButton(
-                                            child: Text("No", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
+                                            child: Text("Cancel", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
                                           ),
                                           TextButton(
-                                            child: Text("Yes", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
+                                            child: Text("Everything except hardware", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
                                             onPressed: () async {
                                               if (usingRustPush) {
-                                                await pushService.reset();
+                                                await pushService.reset(false);
+                                              }
+                                              fs.deleteDB();
+                                              socket.forgetConnection();
+                                              var macWasMine = ss.settings.macIsMine.value;
+                                              ss.settings = Settings();
+                                              ss.settings.macIsMine.value = macWasMine;
+                                              ss.settings.save();
+                                              ss.fcmData = FCMData();
+                                              await ss.prefs.clear();
+                                              await ss.prefs.setString("selected-dark", "OLED Dark");
+                                              await ss.prefs.setString("selected-light", "Bright White");
+                                              themeBox.putMany(ts.defaultThemes);
+                                              await ts.changeTheme(context);
+                                              Get.offAll(() => PopScope(
+                                                canPop: false,
+                                                child: TitleBarWrapper(child: SetupView()),
+                                              ), duration: Duration.zero, transition: Transition.noTransition);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text("Everything", style: context.theme.textTheme.bodyLarge!.copyWith(color: context.theme.colorScheme.primary)),
+                                            onPressed: () async {
+                                              if (usingRustPush) {
+                                                await pushService.reset(true);
                                               }
                                               fs.deleteDB();
                                               socket.forgetConnection();

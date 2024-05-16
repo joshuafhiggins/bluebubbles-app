@@ -247,7 +247,7 @@ class _SetupViewState extends OptimizedState<SetupView> {
         if (text.startsWith(header)) {
           print("caching code");
           await controller.cacheCode(text.replaceFirst(header, ""));
-          controller._childKey.currentState?.updateAppLink();
+          controller._childKey.currentState?.updateInitial();
         }
       });
 
