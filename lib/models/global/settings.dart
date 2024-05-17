@@ -22,7 +22,7 @@ class Settings {
   final RxBool autoDownload = true.obs;
   final RxBool onlyWifiDownload = false.obs;
   final RxBool autoSave = false.obs;
-  final RxBool autoOpenKeyboard = true.obs;
+  final RxBool autoOpenKeyboard = false.obs;
   final RxBool hideTextPreviews = false.obs;
   final RxBool showIncrementalSync = false.obs;
   final RxBool highPerfMode = false.obs;
